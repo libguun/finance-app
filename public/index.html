@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1D9E75">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Санхүү">
+<title>Миний санхүү</title>
+<link rel="manifest" id="pwa-manifest">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5f5f0;--surface:#ffffff;--surface2:#f0f0ea;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --txt:#1a1a1a;--txt2:#666666;--txt3:#999999;
+  --accent:#1D9E75;--accent-d:#0F6E56;--accent-bg:#E1F5EE;
+  --red:#993C1D;--red-bg:#FAECE7;
+  --blue:#185FA5;--blue-bg:#E6F1FB;
+  --amber:#BA7517;--amber-bg:#FAEEDA;
+  --purple:#534AB7;--purple-bg:#EEEDFE;
+  --nav:64px;--safe:env(safe-area-inset-bottom,0px);
+}
+[data-dark]{
+  --bg:#0f0f0f;--surface:#1c1c1e;--surface2:#2c2c2e;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --txt:#f2f2f7;--txt2:#aeaeb2;--txt3:#636366;
+  --accent:#30d158;--accent-d:#30d158;--accent-bg:rgba(48,209,88,0.12);
+  --red:#ff6b47;--red-bg:rgba(255,107,71,0.12);
+  --blue:#64acff;--blue-bg:rgba(100,172,255,0.12);
+  --amber:#ffd60a;--amber-bg:rgba(255,214,10,0.1);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.12);
+}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;overflow-x:hidden;transition:background 0.25s,color 0.25s}
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:calc(var(--nav) + var(--safe) + 8px)}
+
+/* ── Header ── */
+.hdr{padding:54px 20px 8px;display:flex;justify-content:space-between;align-items:center}
+.hdr-l .greet{font-size:12px;color:var(--txt3);margin-bottom:2px;letter-spacing:0.03em}
+.hdr-l .ttl{font-size:22px;font-weight:700;color:var(--txt);letter-spacing:-0.5px}
+.hdr-r{display:flex;gap:8px}
+.icon-btn{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:background 0.15s;color:var(--txt2)}
+.icon-btn:hover{background:var(--surface2)}
+.icon-btn svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── Balance Card ── */
+.bal-card{margin:0 16px 18px;border-radius:22px;padding:22px;position:relative;overflow:hidden;background:var(--accent)}
+[data-dark] .bal-card{background:#173d2a;border:1px solid rgba(48,209,88,0.18)}
+.bal-card::before{content:'';position:absolute;width:160px;height:160px;background:rgba(255,255,255,0.06);border-radius:50%;top:-50px;right:-40px;pointer-events:none}
+.bal-card::after{content:'';position:absolute;width:100px;height:100px;background:rgba(255,255,255,0.04);border-radius:50%;bottom:-30px;right:80px;pointer-events:none}
+.bal-lbl{font-size:11px;color:rgba(255,255,255,0.6);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px}
+[data-dark] .bal-lbl{color:var(--txt3)}
+.bal-amt{font-size:38px;font-weight:800;color:#fff;letter-spacing:-1.5px;margin-bottom:18px;line-height:1}
+[data-dark] .bal-amt{color:var(--accent)}
+.bal-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bstat{background:rgba(255,255,255,0.13);border-radius:14px;padding:12px 14px}
+[data-dark] .bstat{background:rgba(48,209,88,0.08);border:1px solid rgba(48,209,88,0.1)}
+.bstat-l{font-size:11px;color:rgba(255,255,255,0.55);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+[data-dark] .bstat-l{color:var(--txt3)}
+.bstat-v{font-size:17px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+[data-dark] .bstat-v{color:var(--txt)}
+.arr{display:inline-block;width:0;height:0}
+.arr-u{border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:6px solid rgba(255,255,255,0.65)}
+.arr-d{border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid rgba(255,255,255,0.65)}
+
+/* ── Nav ── */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);padding:8px 4px calc(8px + var(--safe));display:flex;z-index:200;transition:background 0.25s}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:transparent;cursor:pointer;padding:4px 0;color:var(--txt3);font-family:inherit;font-size:10px;font-weight:500;letter-spacing:0.02em;transition:color 0.15s}
+.nbtn.on{color:var(--accent)}
+.nbtn svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke-width 0.15s}
+.nbtn.on svg{stroke-width:2.2}
+
+/* ── Pages ── */
+.pg{display:none}.pg.on{display:block}
+.sec{margin:0 16px 20px}
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.sec-ttl{font-size:12px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:0.06em}
+.sec-lnk{font-size:13px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;font-weight:500}
+.card{background:var(--surface);border-radius:18px;border:1px solid var(--border);overflow:hidden;transition:background 0.25s}
+
+/* ── Transaction item ── */
+.txi{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);transition:background 0.1s}
+.txi:last-child{border-bottom:none}
+.txi:active{background:var(--surface2)}
+.txdot{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.txb{flex:1;min-width:0}
+.txn{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
+.txm{font-size:12px;color:var(--txt3);margin-top:2px}
+.txr{text-align:right;flex-shrink:0}
+.txa{font-size:15px;font-weight:700;letter-spacing:-0.3px}
+.txa.pos{color:var(--accent)}.txa.neg{color:var(--txt)}
+.txd{font-size:11px;color:var(--txt3);margin-top:2px}
+
+/* ── Cat chart ── */
+.ccat{padding:14px 16px}
+.crow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.crow:last-child{margin-bottom:0}
+.cn{font-size:12px;color:var(--txt2);width:72px;flex-shrink:0;text-align:right}
+.ct{flex:1;height:20px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.cf{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;min-width:8px;transition:width 0.6s ease}
+.cfl{font-size:10px;font-weight:700;color:rgba(255,255,255,0.92);white-space:nowrap}
+.ca{font-size:12px;font-weight:600;color:var(--txt2);min-width:68px;text-align:right;flex-shrink:0}
+
+/* ── Budget ── */
+.budi{padding:14px 16px;border-bottom:1px solid var(--border)}
+.budi:last-child{border-bottom:none}
+.budt{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.budn{font-size:15px;font-weight:500;color:var(--txt)}
+.budtr{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.budf{height:100%;border-radius:3px;transition:width 0.6s ease}
+
+/* ── Goals ── */
+.gi{display:flex;align-items:center;gap:13px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.gi:last-child{border-bottom:none}
+.gico{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.gb{flex:1;min-width:0}
+.gn{font-size:15px;font-weight:500;color:var(--txt)}
+.gs{font-size:12px;color:var(--txt3);margin-top:2px}
+.gtr{height:5px;background:var(--surface2);border-radius:3px;margin-top:9px;overflow:hidden}
+.gf{height:100%;border-radius:3px;background:var(--accent);transition:width 0.6s ease}
+.gp{font-size:14px;font-weight:700;color:var(--accent);flex-shrink:0;letter-spacing:-0.3px}
+
+/* ── Add page ── */
+.addw{padding:20px 16px}
+.addtl{font-size:22px;font-weight:700;color:var(--txt);letter-spacing:-0.5px;margin-bottom:22px}
+.ttog{display:flex;gap:8px;margin-bottom:20px}
+.tbtn{flex:1;padding:12px;border:1.5px solid var(--border2);border-radius:14px;background:transparent;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--txt2);transition:all 0.15s}
+.tbtn.se{background:var(--red-bg);color:var(--red);border-color:var(--red)}
+.tbtn.si{background:var(--accent-bg);color:var(--accent-d);border-color:var(--accent)}
+.fg{margin-bottom:14px}
+.fl{font-size:11px;font-weight:700;color:var(--txt3);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.06em}
+input,select,textarea{width:100%;padding:13px 15px;border:1.5px solid var(--border2);border-radius:14px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none;transition:border-color 0.15s,background 0.25s;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{border-color:var(--accent)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sbtn{width:100%;padding:15px;border:none;background:var(--accent);color:#fff;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;letter-spacing:-0.3px;transition:opacity 0.15s,transform 0.1s}
+.sbtn:active{opacity:0.85;transform:scale(0.98)}
+.empty{padding:36px;text-align:center;color:var(--txt3);font-size:14px}
+
+/* ── Filter tabs ── */
+.ftabs{display:flex;gap:6px;padding:0 16px;margin-bottom:12px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+.ftabs::-webkit-scrollbar{display:none}
+.ft{padding:7px 18px;border-radius:22px;border:1.5px solid var(--border2);background:transparent;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--txt2);white-space:nowrap;flex-shrink:0;transition:all 0.15s}
+.ft.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* ── Scan ── */
+.scan-zone{border:2px dashed var(--border2);border-radius:18px;padding:30px 20px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:18px;background:var(--surface2);position:relative}
+.scan-zone:hover,.scan-zone.drag{border-color:var(--accent);background:var(--accent-bg)}
+.scan-file{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.scan-ico{font-size:38px;margin-bottom:10px;display:block}
+.scan-ttl{font-size:16px;font-weight:700;color:var(--txt);margin-bottom:4px}
+.scan-sub{font-size:13px;color:var(--txt3);line-height:1.4}
+.prev-img{width:100%;max-height:200px;object-fit:contain;border-radius:14px;margin-bottom:12px;border:1px solid var(--border)}
+.ai-bar{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;margin-bottom:14px}
+.ai-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:background 0.3s}
+.ai-dot.scan{background:var(--amber);animation:pulse 0.9s ease-in-out infinite}
+.ai-dot.ok{background:var(--accent)}
+.ai-dot.err{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.25}}
+.ai-txt{font-size:14px;color:var(--txt);font-weight:500}
+.ex-card{background:var(--accent-bg);border:1.5px solid var(--accent);border-radius:16px;padding:16px;margin-bottom:14px}
+.ex-ttl{font-size:11px;font-weight:700;color:var(--accent-d);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:6px}
+.ex-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14px}
+.ex-row:last-child{margin-bottom:0}
+.ex-l{color:var(--txt2)}.ex-v{font-weight:700;color:var(--txt)}
+.or-div{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--txt3);font-size:12px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--border2)}
+.cancel-btn{width:100%;padding:13px;border:1.5px solid var(--border2);border-radius:14px;background:transparent;color:var(--txt2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:14px;transition:background 0.15s}
+.cancel-btn:hover{background:var(--surface2)}
+
+/* ── Install banner ── */
+.inst{margin:0 16px 16px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px 16px;display:none;align-items:center;gap:12px}
+.inst-ico{width:46px;height:46px;background:var(--accent-bg);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.inst-txt{flex:1}
+.inst-ttl{font-size:14px;font-weight:700;color:var(--txt)}
+.inst-sub{font-size:12px;color:var(--txt3);margin-top:2px}
+.inst-btn{padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+.inst-x{background:none;border:none;font-size:20px;color:var(--txt3);cursor:pointer;padding:0 0 0 4px;flex-shrink:0;line-height:1}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Header -->
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="greet">Сайн байна уу 👋</div>
+    <div class="ttl">Миний санхүү</div>
+  </div>
+  <div class="hdr-r">
+    <button class="icon-btn" id="theme-btn" onclick="toggleDark()">
+      <svg id="sun-ico" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg id="moon-ico" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Install banner -->
+<div class="inst" id="inst">
+  <div class="inst-ico">💰</div>
+  <div class="inst-txt"><div class="inst-ttl">Утсандаа суулгах</div><div class="inst-sub">Нүүр дэлгэцэнд нэмэх</div></div>
+  <button class="inst-btn" onclick="doInstall()">Суулгах</button>
+  <button class="inst-x" onclick="hideInst()">×</button>
+</div>
+
+<!-- Balance Card -->
+<div class="bal-card">
+  <div class="bal-lbl">Нийт үлдэгдэл</div>
+  <div class="bal-amt" id="b-main">₮0</div>
+  <div class="bal-stats">
+    <div class="bstat"><div class="bstat-l"><span class="arr arr-u"></span>Орлого</div><div class="bstat-v" id="b-inc">₮0</div></div>
+    <div class="bstat"><div class="bstat-l"><span class="arr arr-d"></span>Зарлага</div><div class="bstat-v" id="b-exp">₮0</div></div>
+  </div>
+</div>
+
+<!-- Pages -->
+<div id="pg-home" class="pg on">
+  <div class="sec">
+    <div class="sec-hdr"><span class="sec-ttl">Зарлагын задаргаа</span></div>
+    <div class="card"><div class="ccat" id="cat-chart"><div class="empty">Гүйлгээ байхгүй</div></div></div>
+  </div>
+  <div class="sec">
+    <div class="sec-hdr"><span class="sec-ttl">Сүүлийн гүйлгээ</span><button class="sec-lnk" onclick="goPg('txpage',1)">Бүгдийг харах</button></div>
+    <div class="card" id="recent"></div>
+  </div>
+</div>
+
+<div id="pg-txpage" class="pg">
+  <div class="ftabs">
+    <button class="ft on" onclick="setF('all',this)">Бүгд</button>
+    <button class="ft" onclick="setF('income',this)">Орлого</button>
+    <button class="ft" onclick="setF('expense',this)">Зарлага</button>
+  </div>
+  <div class="sec" style="margin-top:0"><div class="card" id="tx-all"></div></div>
+</div>
+
+<div id="pg-budgetpage" class="pg">
+  <div class="sec">
+    <div class="sec-hdr"><span class="sec-ttl">Сарын төсөв</span></div>
+    <div class="card" id="bud-list"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-hdr"><span class="sec-ttl">Төсөв нэмэх</span></div>
+    <div class="card"><div class="addw" style="padding:16px">
+      <div class="fg"><label class="fl">Ангилал</label>
+        <select id="b-cat"><option>Хоол</option><option>Тээвэр</option><option>Үйлчилгээ</option><option>Цэнгэл</option><option>Эрүүл мэнд</option><option>Хувцас</option><option>Бусад</option></select>
+      </div>
+      <div class="fg"><label class="fl">Хязгаар (₮)</label><input type="number" id="b-lim" placeholder="500000"></div>
+      <button class="sbtn" onclick="addBudget()">Хадгалах</button>
+    </div></div>
+  </div>
+</div>
+
+<div id="pg-goalspage" class="pg">
+  <div class="sec">
+    <div class="sec-hdr"><span class="sec-ttl">Хадгаламжийн зорилт</span></div>
+    <div class="card" id="goal-list"></div>
+  </div>
+  <div class="sec">
+    <div class="sec-hdr"><span class="sec-ttl">Зорилт нэмэх</span></div>
+    <div class="card"><div class="addw" style="padding:16px">
+      <div class="fg"><label class="fl">Нэр</label><input type="text" id="g-name" placeholder="жишээ: Аялал"></div>
+      <div class="frow" style="margin-bottom:14px">
+        <div class="fg" style="margin-bottom:0"><label class="fl">Зорилго (₮)</label><input type="number" id="g-tgt" placeholder="1000000"></div>
+        <div class="fg" style="margin-bottom:0"><label class="fl">Хуримтлал (₮)</label><input type="number" id="g-sv" placeholder="0"></div>
+      </div>
+      <div class="fg"><label class="fl">Төрөл</label>
+        <select id="g-ico"><option value="✈">✈ Аялал</option><option value="🏠">🏠 Гэр</option><option value="🚗">🚗 Машин</option><option value="💻">💻 Технологи</option><option value="📚">📚 Боловсрол</option><option value="💰">💰 Хадгаламж</option></select>
+      </div>
+      <button class="sbtn" onclick="addGoal()">Нэмэх</button>
+    </div></div>
+  </div>
+</div>
+
+<div id="pg-addpage" class="pg">
+  <div class="addw">
+    <div class="addtl">Гүйлгээ нэмэх</div>
+
+    <!-- SCAN -->
+    <div class="scan-zone" id="scan-zone"
+      ondragover="ev.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="this.classList.remove('drag');onDrop(event)">
+      <input class="scan-file" type="file" id="file-in" accept="image/*,application/pdf" onchange="onFileSelect(event)">
+      <span class="scan-ico">📄</span>
+      <div class="scan-ttl">Баримт скан хийх</div>
+      <div class="scan-sub">Зураг эсвэл PDF дарж оруулна уу<br>AI автоматаар мэдээлэл задлана</div>
+    </div>
+
+    <div id="scan-result" style="display:none">
+      <img id="prev-img" class="prev-img" style="display:none">
+      <div class="ai-bar">
+        <div class="ai-dot scan" id="ai-dot"></div>
+        <div class="ai-txt" id="ai-txt">AI задлан шинжилж байна...</div>
+      </div>
+      <div class="ex-card" id="ex-card" style="display:none">
+        <div class="ex-ttl">✓ Олдсон мэдээлэл</div>
+        <div class="ex-row"><span class="ex-l">Нэр</span><span class="ex-v" id="ex-nm">—</span></div>
+        <div class="ex-row"><span class="ex-l">Дүн</span><span class="ex-v" id="ex-am">—</span></div>
+        <div class="ex-row"><span class="ex-l">Огноо</span><span class="ex-v" id="ex-dt">—</span></div>
+        <div class="ex-row"><span class="ex-l">Ангилал</span><span class="ex-v" id="ex-ct">—</span></div>
+        <div class="ex-row"><span class="ex-l">Төрөл</span><span class="ex-v" id="ex-ty">—</span></div>
+      </div>
+      <button class="sbtn" id="conf-btn" style="display:none" onclick="confirmScan()">✓ Бүртгэх</button>
+      <button class="cancel-btn" onclick="resetScan()">Цуцлах</button>
+    </div>
+
+    <div class="or-div">эсвэл гараар оруулах</div>
+
+    <div class="ttog">
+      <button class="tbtn se" id="btn-exp" onclick="selT('expense')">Зарлага</button>
+      <button class="tbtn" id="btn-inc" onclick="selT('income')">Орлого</button>
+    </div>
+    <div class="fg"><label class="fl">Нэр</label><input type="text" id="f-nm" placeholder="жишээ: Хоолны зардал"></div>
+    <div class="frow" style="margin-bottom:14px">
+      <div class="fg" style="margin-bottom:0"><label class="fl">Дүн (₮)</label><input type="number" id="f-am" placeholder="0"></div>
+      <div class="fg" style="margin-bottom:0"><label class="fl">Огноо</label><input type="date" id="f-dt"></div>
+    </div>
+    <div class="fg"><label class="fl">Ангилал</label>
+      <select id="f-ct"><option>Хоол</option><option>Тээвэр</option><option>Үйлчилгээ</option><option>Цалин</option><option>Цэнгэл</option><option>Эрүүл мэнд</option><option>Хувцас</option><option>Бусад</option></select>
+    </div>
+    <div class="fg"><label class="fl">Тэмдэглэл</label><input type="text" id="f-nt" placeholder="заавал биш..."></div>
+    <button class="sbtn" onclick="addTx()">Хадгалах</button>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="nav">
+  <button class="nbtn on" onclick="goPg('home',0)" id="n-home">
+    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V21H15v-5H9v5H3V9.5z"/></svg>Нүүр
+  </button>
+  <button class="nbtn" onclick="goPg('txpage',1)" id="n-txpage">
+    <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h8"/></svg>Гүйлгээ
+  </button>
+  <button class="nbtn" onclick="goPg('budgetpage',2)" id="n-budgetpage">
+    <svg viewBox="0 0 24 24"><rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="17" rx="1"/></svg>Төсөв
+  </button>
+  <button class="nbtn" onclick="goPg('goalspage',3)" id="n-goalspage">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>Зорилт
+  </button>
+  <button class="nbtn" onclick="goPg('addpage',4)" id="n-addpage">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Нэмэх
+  </button>
+</nav>
+
+</div><!-- .app -->
+
+<script>
+const CC={Хоол:'#1D9E75',Тээвэр:'#378ADD',Үйлчилгээ:'#7F77DD',Цалин:'#1D9E75',Цэнгэл:'#D85A30','Эрүүл мэнд':'#D4537E',Хувцас:'#BA7517',Бусад:'#888780'};
+const CB={Хоол:'#E1F5EE',Тээвэр:'#E6F1FB',Үйлчилгээ:'#EEEDFE',Цалин:'#E1F5EE',Цэнгэл:'#FAECE7','Эрүүл мэнд':'#FBEAF0',Хувцас:'#FAEEDA',Бусад:'#F1EFE8'};
+const CI={Хоол:'🍜',Тээвэр:'🚌',Үйлчилгээ:'⚡',Цалин:'💼',Цэнгэл:'🎮','Эрүүл мэнд':'🏥',Хувцас:'👕',Бусад:'📦'};
+const GB={'✈':'#E6F1FB','🏠':'#E1F5EE','🚗':'#FAEEDA','💻':'#EEEDFE','📚':'#FAECE7','💰':'#E1F5EE'};
+const NV=['home','txpage','budgetpage','goalspage','addpage'];
+
+let D={
+  dark:window.matchMedia('(prefers-color-scheme: dark)').matches,
+  txf:'all',ty:'expense',nid:7,ext:null,
+  txs:[
+    {id:1,type:'income',name:'Цалин',amount:2500000,cat:'Цалин',date:'2026-04-01'},
+    {id:2,type:'expense',name:'Хоолны зардал',amount:350000,cat:'Хоол',date:'2026-04-05'},
+    {id:3,type:'expense',name:'Автобус',amount:45000,cat:'Тээвэр',date:'2026-04-07'},
+    {id:4,type:'expense',name:'Netflix',amount:25000,cat:'Цэнгэл',date:'2026-04-10'},
+    {id:5,type:'income',name:'Нэмэлт орлого',amount:300000,cat:'Бусад',date:'2026-04-15'},
+    {id:6,type:'expense',name:'Эмийн зардал',amount:80000,cat:'Эрүүл мэнд',date:'2026-04-18'},
+  ],
+  budgets:[{cat:'Хоол',limit:400000},{cat:'Тээвэр',limit:100000},{cat:'Цэнгэл',limit:50000}],
+  goals:[{name:'Зуны аялал',target:1500000,saved:450000,icon:'✈'},{name:'Зөөврийн компьютер',target:2000000,saved:800000,icon:'💻'}]
+};
+
+let dP=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dP=e;document.getElementById('inst').style.display='flex'});
+window.addEventListener('appinstalled',()=>hideInst());
+function doInstall(){if(dP){dP.prompt();dP.userChoice.then(()=>{dP=null;hideInst()})}}
+function hideInst(){document.getElementById('inst').style.display='none'}
+
+function applyTheme(){
+  if(D.dark)document.documentElement.setAttribute('data-dark','');
+  else document.documentElement.removeAttribute('data-dark');
+  document.getElementById('sun-ico').style.display=D.dark?'block':'none';
+  document.getElementById('moon-ico').style.display=D.dark?'none':'block';
+}
+function toggleDark(){D.dark=!D.dark;applyTheme()}
+applyTheme();
+
+function fmt(n){return '₮'+Math.round(n).toLocaleString('mn-MN')}
+
+function goPg(p){
+  document.querySelectorAll('.pg').forEach(e=>e.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  NV.forEach(id=>document.getElementById('n-'+id).classList.remove('on'));
+  document.getElementById('n-'+p).classList.add('on');
+  renderAll();
+}
+function renderAll(){rHead();rHome();rTx();rBud();rGoals()}
+
+function rHead(){
+  const inc=D.txs.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0);
+  const exp=D.txs.filter(t=>t.type==='expense').reduce((a,t)=>a+t.amount,0);
+  document.getElementById('b-main').textContent=fmt(inc-exp);
+  document.getElementById('b-inc').textContent=fmt(inc);
+  document.getElementById('b-exp').textContent=fmt(exp);
+}
+function txHTML(t){
+  const d=new Date(t.date);
+  const ds=(d.getMonth()+1)+'/'+(d.getDate());
+  const pos=t.type==='income';
+  return `<div class="txi" id="tx-${t.id}">
+    <div class="txdot" style="background:${CB[t.cat]||'#F1EFE8'}">${CI[t.cat]||'📦'}</div>
+    <div class="txb"><div class="txn">${t.name}</div><div class="txm">${t.cat}</div></div>
+    <div class="txr">
+      <div class="txa ${pos?'pos':'neg'}">${pos?'+':'−'}${fmt(t.amount)}</div>
+      <div class="txd">${ds}</div>
+    </div>
+    <button onclick="delTx(${t.id})" style="margin-left:10px;width:28px;height:28px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700">×</button>
+  </div>`;
+}
+function delTx(id){D.txs=D.txs.filter(t=>t.id!==id);renderAll()}
+function rHome(){
+  const r=D.txs.slice().reverse().slice(0,5);
+  document.getElementById('recent').innerHTML=r.length?r.map(txHTML).join(''):'<div class="empty">Гүйлгээ байхгүй</div>';
+  const cats={};D.txs.filter(t=>t.type==='expense').forEach(t=>{cats[t.cat]=(cats[t.cat]||0)+t.amount});
+  const s=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const cc=document.getElementById('cat-chart');
+  if(!s.length){cc.innerHTML='<div class="empty">Зарлага байхгүй</div>';return}
+  const mx=s[0][1];
+  cc.innerHTML=s.map(([c,a])=>{
+    const pct=Math.round(a/mx*100);const col=CC[c]||'#888780';
+    return `<div class="crow"><span class="cn">${c}</span><div class="ct"><div class="cf" style="width:${pct}%;background:${col}">${pct>22?`<span class="cfl">${fmt(a)}</span>`:''}</div></div><span class="ca">${fmt(a)}</span></div>`;
+  }).join('');
+}
+function setF(f,btn){D.txf=f;document.querySelectorAll('.ft').forEach(b=>b.classList.remove('on'));btn.classList.add('on');rTx()}
+function rTx(){
+  const l=D.txs.slice().reverse().filter(t=>D.txf==='all'||t.type===D.txf);
+  document.getElementById('tx-all').innerHTML=l.length?l.map(txHTML).join(''):'<div class="empty">Гүйлгээ байхгүй</div>';
+}
+function rBud(){
+  const sp={};D.txs.filter(t=>t.type==='expense').forEach(t=>{sp[t.cat]=(sp[t.cat]||0)+t.amount});
+  const el=document.getElementById('bud-list');
+  el.innerHTML=D.budgets.length?D.budgets.map(b=>{
+    const s=sp[b.cat]||0;const p=Math.min(100,Math.round(s/b.limit*100));
+    const col=p>90?'#993C1D':p>65?'#BA7517':'#1D9E75';
+    return `<div class="budi"><div class="budt"><span class="budn">${b.cat}</span><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;font-weight:700;color:${col}">${fmt(s)} / ${fmt(b.limit)}</span><button onclick="delBud('${b.cat}')" style="width:24px;height:24px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">×</button></div></div><div class="budtr"><div class="budf" style="width:${p}%;background:${col}"></div></div></div>`;
+  }).join(''):'<div class="empty">Төсөв байхгүй</div>';
+}
+function rGoals(){
+  const el=document.getElementById('goal-list');
+  el.innerHTML=D.goals.length?D.goals.map((g,i)=>{
+    const p=Math.min(100,Math.round(g.saved/g.target*100));
+    return `<div class="gi"><div class="gico" style="background:${GB[g.icon]||'#E1F5EE'}">${g.icon}</div><div class="gb"><div class="gn">${g.name}</div><div class="gs">${fmt(g.saved)} / ${fmt(g.target)} · ${fmt(g.target-g.saved)} үлдсэн</div><div class="gtr"><div class="gf" style="width:${p}%"></div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0"><div class="gp">${p}%</div><button onclick="delGoal(${i})" style="width:26px;height:26px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700">×</button></div></div>`;
+  }).join(''):'<div class="empty">Зорилт байхгүй</div>';
+}
+function delBud(cat){D.budgets=D.budgets.filter(b=>b.cat!==cat);rBud()}
+function delGoal(i){D.goals.splice(i,1);rGoals()}
+function selT(t){
+  D.ty=t;
+  document.getElementById('btn-exp').className='tbtn'+(t==='expense'?' se':'');
+  document.getElementById('btn-inc').className='tbtn'+(t==='income'?' si':'');
+}
+function addTx(){
+  const nm=document.getElementById('f-nm').value.trim();
+  const am=parseFloat(document.getElementById('f-am').value);
+  const dt=document.getElementById('f-dt').value||new Date().toISOString().split('T')[0];
+  const ct=document.getElementById('f-ct').value;
+  if(!nm||!am||am<=0)return;
+  D.txs.push({id:D.nid++,type:D.ty,name:nm,amount:am,cat:ct,date:dt});
+  ['f-nm','f-am','f-nt'].forEach(id=>document.getElementById(id).value='');
+  goPg('home');
+}
+function addBudget(){
+  const cat=document.getElementById('b-cat').value;
+  const lim=parseFloat(document.getElementById('b-lim').value);
+  if(!lim||lim<=0)return;
+  const i=D.budgets.findIndex(b=>b.cat===cat);
+  if(i>=0)D.budgets[i].limit=lim;else D.budgets.push({cat,limit:lim});
+  document.getElementById('b-lim').value='';rBud();
+}
+function addGoal(){
+  const nm=document.getElementById('g-name').value.trim();
+  const tgt=parseFloat(document.getElementById('g-tgt').value);
+  const sv=parseFloat(document.getElementById('g-sv').value)||0;
+  const ico=document.getElementById('g-ico').value;
+  if(!nm||!tgt)return;
+  D.goals.push({name:nm,target:tgt,saved:sv,icon:ico});
+  ['g-name','g-tgt','g-sv'].forEach(id=>document.getElementById(id).value='');
+  rGoals();
+}
+
+/* ── SCAN / AI OCR ── */
+function onDrop(e){e.preventDefault();const f=e.dataTransfer.files[0];if(f)processFile(f)}
+function onFileSelect(e){const f=e.target.files[0];if(f)processFile(f)}
+
+function processFile(file){
+  const r=new FileReader();
+  r.onload=async e=>{
+    const url=e.target.result;
+    const isImg=file.type.startsWith('image/');
+    document.getElementById('scan-zone').style.display='none';
+    document.getElementById('scan-result').style.display='block';
+    const pi=document.getElementById('prev-img');
+    if(isImg){pi.src=url;pi.style.display='block'}else pi.style.display='none';
+    setAI('scan','AI задлан шинжилж байна...');
+    document.getElementById('ex-card').style.display='none';
+    document.getElementById('conf-btn').style.display='none';
+    try{
+      const b64=url.split(',')[1];
+      const res=await callAI(b64,file.type||'image/jpeg',isImg);
+      D.ext=res;
+      document.getElementById('ex-nm').textContent=res.name||'—';
+      document.getElementById('ex-am').textContent=res.amount?fmt(res.amount):'—';
+      document.getElementById('ex-dt').textContent=res.date||'—';
+      document.getElementById('ex-ct').textContent=res.cat||'Бусад';
+      document.getElementById('ex-ty').textContent=res.type==='income'?'Орлого':'Зарлага';
+      document.getElementById('ex-card').style.display='block';
+      document.getElementById('conf-btn').style.display='block';
+      setAI('ok','Амжилттай! Мэдээллийг шалгаад бүртгэнэ үү.');
+      document.getElementById('f-nm').value=res.name||'';
+      document.getElementById('f-am').value=res.amount||'';
+      if(res.date)document.getElementById('f-dt').value=res.date;
+      const cs=document.getElementById('f-ct');
+      for(let i=0;i<cs.options.length;i++)if(cs.options[i].text.includes(res.cat||'')){cs.selectedIndex=i;break}
+      selT(res.type||'expense');
+    }catch{
+      setAI('err','Задлах үед алдаа гарлаа. Гараар оруулна уу.');
+    }
+  };
+  r.readAsDataURL(file);
+}
+
+function setAI(state,msg){
+  document.getElementById('ai-dot').className='ai-dot '+state;
+  document.getElementById('ai-txt').textContent=msg;
+}
+
+async function callAI(b64,mt,isImg){
+  const prompt=`Энэ баримт/зурагнаас санхүүгийн гүйлгээний мэдээллийг задла. Зөвхөн JSON хариул (өөр текст бүү нэм):
+{"name":"дэлгүүр эсвэл үйлчилгээний нэр","amount":12345,"date":"YYYY-MM-DD","type":"expense эсвэл income","cat":"Хоол эсвэл Тээвэр эсвэл Үйлчилгээ эсвэл Цэнгэл эсвэл Эрүүл мэнд эсвэл Хувцас эсвэл Бусад"}
+Дүнг тоо болгон бич. Мэдээлэл байхгүй бол null.`;
+  const msgs=[{role:'user',content:isImg?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]:[{type:'text',text:prompt}]}];
+  // Cloudflare Worker proxy-р дамжуулна (API key нуугдана)
+  const res=await fetch('/api/scan',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:msgs})
+  });
+  if(!res.ok) throw new Error('worker error');
+  const data=await res.json();
+  const txt=data.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+  const p=JSON.parse(txt);
+  if(!p.amount&&p.amount!==0)throw new Error('no amount');
+  return p;
+}
+
+function confirmScan(){
+  if(!D.ext)return;
+  D.txs.push({id:D.nid++,type:D.ext.type||'expense',name:D.ext.name||'Баримт',amount:D.ext.amount||0,cat:D.ext.cat||'Бусад',date:D.ext.date||new Date().toISOString().split('T')[0]});
+  resetScan();goPg('home');
+}
+function resetScan(){
+  document.getElementById('scan-result').style.display='none';
+  document.getElementById('scan-zone').style.display='block';
+  document.getElementById('file-in').value='';D.ext=null;
+}
+
+/* PWA */
+const mf={name:'Миний санхүү',short_name:'Санхүү',display:'standalone',background_color:'#1D9E75',theme_color:'#1D9E75',start_url:'.',orientation:'portrait',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%231D9E75'/%3E%3Ctext x='256' y='330' font-size='260' text-anchor='middle' fill='white'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E",sizes:'512x512',type:'image/svg+xml',purpose:'any maskable'}]};
+const mb=new Blob([JSON.stringify(mf)],{type:'application/json'});
+document.getElementById('pwa-manifest').href=URL.createObjectURL(mb);
+if('serviceWorker' in navigator){
+  const sw=`const C='fin-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.add(self.location.href))));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))))`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
+}
+
+document.getElementById('f-dt').valueAsDate=new Date();
+renderAll();
+</script>
+</body>
+</html>
