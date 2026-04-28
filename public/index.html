@@ -537,7 +537,7 @@ async function callAI(b64,mt,isImg){
 Дүнг тоо болгон бич. Мэдээлэл байхгүй бол null.`;
   const msgs=[{role:'user',content:isImg?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]:[{type:'text',text:prompt}]}];
   // Cloudflare Worker proxy-р дамжуулна (API key нуугдана)
-  const res=await fetch('/api/scan',{
+  const res=await fetch('https://tight-wood-dfd1finance-scan.devbilguun.workers.dev',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({messages:msgs})
