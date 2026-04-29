@@ -662,10 +662,14 @@ async function callAI(b64,mt,isImg){
     :[{type:'text',text:prompt}]
   }];
 
-  const res=await fetch('https://tight-wood-dfd1finance-scan.devbilguun.workers.dev/scan',{
+  const res=await fetch('https://tight-wood-dfd1finance-scan.devbilguun.workers.dev',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({messages:msgs,model:'claude-sonnet-4-20250514',max_tokens:300})
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:300,
+      messages:msgs
+    })
   });
   if(!res.ok) throw new Error('API error '+res.status);
   const data=await res.json();
