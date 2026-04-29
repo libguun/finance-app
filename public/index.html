@@ -703,10 +703,17 @@ async function callAI(b64,mt,isImg){
   });
   if(!res.ok) throw new Error('API error '+res.status);
   const data=await res.json();
-  if(data.error) throw new Error(data.error.message||'API error');
-  const txt=data.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
-  const p=JSON.parse(txt);
-  if(!p.amount&&p.amount!==0) throw new Error('no amount');
+  if(data.error) throw new Error(data.error);
+  const raw=data.content.map(c=>c.text||'').join('');
+  // ```json wrapper болон тэмдэгтүүдийг хасна
+  const clean=raw.replace(/```json\s*/gi,'').replace(/```/g,'').trim();
+  const p=JSON.parse(clean);
+  // null утгуудыг default-р орлуулна
+  if(!p.name) p.name='Дэлгүүр';
+  if(!p.type) p.type='expense';
+  if(!p.cat) p.cat='Бусад';
+  if(!p.amount||p.amount===0) throw new Error('no amount');
+  if(!p.items) p.items=[];
   return p;
 }
 
