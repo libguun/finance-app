@@ -776,13 +776,14 @@ function renderItemsList(items, storeName, date){
   wrap.innerHTML=items.map((it,i)=>{
     const cat=guessCategory(it.name)||'Бусад';
     const catOpts=CATS.map(c=>`<option${c===cat?' selected':''}>${c}</option>`).join('');
+    const qtyTxt=it.qty>1?`<span style="color:var(--txt3);font-size:11px">${it.qty}ш × ${fmt(it.price)}</span> `:'';
     return `<div class="item-row" id="irow-${i}">
       <div class="item-chk on" id="ichk-${i}" onclick="toggleItem(${i})"></div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:500;color:var(--txt)">${it.name}</div>
-        <div style="font-size:12px;color:var(--txt3)">${it.qty>1?it.qty+' ш × '+fmt(it.price)+' = ':''}<b>${fmt(it.total||it.price)}</b></div>
+      <div style="flex:1;min-width:0;margin-right:8px">
+        <div style="font-size:14px;font-weight:500;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.name}</div>
+        <div style="margin-top:2px">${qtyTxt}<span style="font-size:13px;font-weight:600;color:var(--txt)">${fmt(it.total||it.price||0)}</span></div>
       </div>
-      <select class="item-cat" id="icat-${i}" onchange="updateItemCat(${i},this.value)">${catOpts}</select>
+      <select class="item-cat" id="icat-${i}">${catOpts}</select>
     </div>`;
   }).join('');
   document.getElementById('items-section').style.display='block';
@@ -800,26 +801,15 @@ function updateItemCat(i,val){
 function addAllItems(){
   const items=D.ext?.items||[];
   const date=D.ext?.date||new Date().toISOString().split('T')[0];
-  let added=0;
   items.forEach((it,i)=>{
     const chk=document.getElementById('ichk-'+i);
     if(!chk||!chk.classList.contains('on')) return;
     const cat=document.getElementById('icat-'+i)?.value||guessCategory(it.name)||'Бусад';
-    D.txs.push({
-      id:D.nid++,
-      type:'expense',
-      name:it.name,
-      amount:it.total||it.price*it.qty||it.price||0,
-      cat,
-      date
-    });
-    added++;
+    D.txs.push({id:D.nid++,type:'expense',name:it.name,amount:it.total||it.price*it.qty||it.price||0,cat,date});
   });
-  if(added>0){
-    saveToStorage();
-    resetScan();
-    goPg('home');
-  }
+  saveToStorage();
+  resetScan();
+  goPg('home');
 }
 
 let ebarimtToken = null;
