@@ -258,6 +258,9 @@ input:focus,select:focus{border-color:var(--accent)}
       <svg id="sun-ico" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       <svg id="moon-ico" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
     </button>
+    <button class="icon-btn" onclick="logout()" title="Гарах">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+    </button>
   </div>
 </div>
 
@@ -406,6 +409,8 @@ input:focus,select:focus{border-color:var(--accent)}
         </div>
         <button class="cancel-btn" onclick="resetScan()">← Буцах</button>
       </div>
+      <!-- Алдаатай ч буцах товч -->
+      <button class="cancel-btn" id="scan-back-btn" onclick="resetScan()" style="display:none">← Буцах</button>
     </div>
 
     <div class="or-div">эсвэл гараар оруулах</div>
@@ -693,7 +698,7 @@ async function addGoal(){
 function onDrop(e){e.preventDefault();const f=e.dataTransfer.files[0];if(f)processFile(f)}
 function onFileSelect(e){const f=e.target.files[0];if(f)processFile(f)}
 
-async function compressImage(dataUrl,maxWidth=1200,quality=0.85){
+async function compressImage(dataUrl,maxWidth=1600,quality=0.9){
   return new Promise(resolve=>{
     const img=new Image();
     img.onload=()=>{
@@ -738,6 +743,7 @@ function processFile(file){
       setAI('ok','✅ Амжилттай! Нэмэх item-уудаа сонгоно уу.');
     }catch(err){
       setAI('err','❌ Уншихад алдаа гарлаа. Зургаа илүү тод дарж оруулна уу.');
+      const bb=document.getElementById('scan-back-btn');if(bb)bb.style.display='block';
     }
   };
   r.readAsDataURL(file);
@@ -766,19 +772,24 @@ function toggleEdit(){
 
 async function callAI(b64,mt,isImg){
   const today = new Date().toISOString().split('T')[0];
-  const prompt=`Extract receipt info. Reply ONLY with JSON, no other text, no \`\`\`json wrapper.
+  const prompt=`You are an expert Mongolian receipt OCR system. Extract ALL information from this receipt image carefully.
 
-{"name":"store name from top of receipt","items":[{"name":"item name in Mongolian Cyrillic","qty":1,"price":1200,"total":1200}],"amount":16029,"date":"YYYY-MM-DD","type":"expense","cat":"Хүнс"}
+The image may be rotated, blurry, or at an angle - analyze it carefully from all orientations.
 
-Rules:
-- name: store/company name from the top of receipt. If not visible write "Дэлгүүр"
-- items: all products/items. Write names in Mongolian Cyrillic exactly as shown (preserve ө ү ё characters)
-- amount: total payment amount (number only)
-- date: receipt date, if missing use "${today}"
-- type: always "expense"
-- cat: choose one: Хүнс/Орон сууц/Тээврийн хэрэгсэл/Ахуйн хэрэглээ/Харилцаа холбоо/Амрал зугаалга/Боловсрол/Эрүүл мэнд/Төрийн үйлчилгээ/Үзвэр үйлчилгээ/Бэлэн хувцас/Бусад
+Reply ONLY with valid JSON (no markdown, no \`\`\`):
+{"name":"STORE NAME from top of receipt","items":[{"name":"product name","qty":1,"price":1200.00,"total":1200.00}],"amount":16029.00,"date":"YYYY-MM-DD","type":"expense","cat":"Хүнс"}
 
-IMPORTANT: Mongolian Cyrillic letters like ө (U+04E9), ү (U+04AF), ё must be preserved exactly. Example: Сүү not Суу, Өндөг not Ондог.`;
+CRITICAL RULES:
+1. STORE NAME: Always at the very top of receipt in large/bold text. Examples: ГУРВАНБУМБА, НОМИН, ХҮНСМАРТ
+2. ITEMS: Read each line carefully. Each item has: number, name, quantity, unit price, total price
+3. PRICES: Must be realistic Mongolian prices (hundreds to millions of MNT). If you read ₮4 that is likely ₮4,420 - read the full number
+4. DATE: Look for "Огноо:" field. Format as YYYY-MM-DD
+5. AMOUNT: Look for "Бүгд үнэ:" or "Нийт:" for total amount
+6. Mongolian Cyrillic: preserve ө(U+04E9), ү(U+04AF), ё exactly. Сүү not Суу, Өндөг not Ондог
+7. If receipt is rotated, read it in correct orientation
+8. cat: choose ONE: Хүнс/Орон сууц/Тээврийн хэрэгсэл/Ахуйн хэрэглээ/Харилцаа холбоо/Амрал зугаалга/Боловсрол/Эрүүл мэнд/Төрийн үйлчилгээ/Үзвэр үйлчилгээ/Бэлэн хувцас/Бусад
+9. If date not found use "${today}"
+10. Choose category based on STORE NAME and items, not just items`;
 
   const msgs=[{role:'user',content:isImg
     ?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]
@@ -823,7 +834,7 @@ function confirmScan(){
 }
 function resetScan(){
   try{stopQR()}catch{}
-  const ids=['scan-result','items-section','qr-zone'];
+  const ids=['scan-result','items-section','qr-zone','scan-back-btn'];
   ids.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   const sz=document.getElementById('scan-zone');if(sz)sz.style.display='block';
   const fi=document.getElementById('file-in');if(fi)fi.value='';
