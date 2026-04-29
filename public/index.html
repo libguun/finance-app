@@ -322,11 +322,18 @@ input:focus,select:focus{border-color:var(--accent)}
       <!-- Олдсон мэдээлэл -->
       <div class="ex-card" id="ex-card" style="display:none">
         <div class="ex-ttl">✓ AI олсон мэдээлэл</div>
-        <div class="ex-row"><span class="ex-l">🏪 Нэр</span><span class="ex-v" id="ex-nm">—</span></div>
-        <div class="ex-row"><span class="ex-l">💰 Дүн</span><span class="ex-v" id="ex-am" style="color:var(--red)">—</span></div>
+        <div class="ex-row"><span class="ex-l">🏪 Дэлгүүр</span><span class="ex-v" id="ex-nm">—</span></div>
         <div class="ex-row"><span class="ex-l">📅 Огноо</span><span class="ex-v" id="ex-dt">—</span></div>
         <div class="ex-row"><span class="ex-l">🏷 Ангилал</span><span class="ex-v" id="ex-ct">—</span></div>
-        <div class="ex-row"><span class="ex-l">📊 Төрөл</span><span class="ex-v" id="ex-ty">—</span></div>
+        <!-- Бараа бүтээгдэхүүний жагсаалт -->
+        <div id="ex-items" style="display:none;margin:10px 0;border-top:1px solid var(--accent);padding-top:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--accent-d);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Бараа бүтээгдэхүүн</div>
+          <div id="ex-items-list"></div>
+        </div>
+        <div class="ex-row" style="border-top:1px solid var(--accent);padding-top:8px;margin-top:4px">
+          <span class="ex-l" style="font-weight:700">💰 Нийт дүн</span>
+          <span class="ex-v" id="ex-am" style="color:var(--red);font-size:16px;font-weight:700">—</span>
+        </div>
       </div>
       <!-- Мэдээлэл засах боломж -->
       <div id="edit-extracted" style="display:none;margin-bottom:14px">
@@ -594,6 +601,22 @@ function processFile(file){
       document.getElementById('ex-dt').textContent=res.date||'—';
       document.getElementById('ex-ct').textContent=res.cat||'Бусад';
       document.getElementById('ex-ty').textContent=res.type==='income'?'Орлого ↑':'Зарлага ↓';
+      // Бараа жагсаалт харуулах
+      const itemsEl=document.getElementById('ex-items');
+      const itemsList=document.getElementById('ex-items-list');
+      if(res.items&&res.items.length>0){
+        itemsList.innerHTML=res.items.map(it=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--accent-bg);font-size:13px">
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.name||'—'}</div>
+              ${it.qty>1?`<div style="color:var(--txt3);font-size:11px">${it.qty} ш × ${fmt(it.price)}</div>`:''}
+            </div>
+            <div style="font-weight:600;color:var(--txt);margin-left:10px;flex-shrink:0">${fmt(it.total||it.price)}</div>
+          </div>`).join('');
+        itemsEl.style.display='block';
+      } else {
+        itemsEl.style.display='none';
+      }
       document.getElementById('ex-card').style.display='block';
       document.getElementById('conf-btn').style.display='block';
       document.getElementById('edit-btn').style.display='block';
@@ -641,21 +664,28 @@ function toggleEdit(){
 }
 
 async function callAI(b64,mt,isImg){
-  const prompt=`Та энэ баримт/чекнээс санхүүгийн мэдээллийг задлаарай.
+  const today = new Date().toISOString().split('T')[0];
+  const prompt=`Энэ баримт/чекнээс мэдээллийг задла. Зөвхөн JSON хариул, өөр текст бүү нэм.
 
-Зөвхөн дараах JSON форматаар хариулна уу (өөр текст нэмэхгүй):
 {
-  "name": "дэлгүүр эсвэл компанийн нэр (монголоор)",
-  "amount": 12345,
+  "name": "дэлгүүрийн нэр эсвэл компанийн нэр",
+  "items": [
+    {"name": "бараа/үйлчилгээний нэр", "qty": 1, "price": 1200, "total": 1200},
+    {"name": "бараа/үйлчилгээний нэр", "qty": 2, "price": 3500, "total": 7000}
+  ],
+  "amount": 16029,
   "date": "YYYY-MM-DD",
   "type": "expense",
   "cat": "Хоол"
 }
 
-Ангилал сонгох (яг нэг сонгоно): Хоол, Тээвэр, Үйлчилгээ, Цэнгэл, Эрүүл мэнд, Хувцас, Бусад
-Нийт төлбөрийн дүнг (amount) тоо болгон бич — ₮ тэмдэг бүү нэм.
-Огноо байхгүй бол өнөөдрийн огноог бич.
-Мэдээлэл тодорхойгүй бол таамаглаж бич.`;
+Дүрэм:
+- items: чек дээрх бүх бараа бүтээгдэхүүний жагсаалт
+- amount: нийт төлбөрийн дүн (тоо, тэмдэг бүү нэм)
+- date: баримтын огноо, байхгүй бол "${today}"
+- cat: Хоол / Тээвэр / Үйлчилгээ / Цэнгэл / Эрүүл мэнд / Хувцас / Бусад
+- Кирилл болон латин үсэг аль алиныг уншина
+- Мэдээлэл харагдахгүй бол null`;
 
   const msgs=[{role:'user',content:isImg
     ?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]
