@@ -66,10 +66,11 @@ html,body{height:100%;background:var(--bg);color:var(--txt);font-family:-apple-s
 
 /* ── Nav ── */
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);padding:8px 4px calc(8px + var(--safe));display:flex;z-index:200;transition:background 0.25s}
-.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:transparent;cursor:pointer;padding:4px 0;color:var(--txt3);font-family:inherit;font-size:10px;font-weight:500;letter-spacing:0.02em;transition:color 0.15s}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:transparent;cursor:pointer;padding:4px 0;color:var(--txt3);font-family:inherit;font-size:10px;font-weight:500;letter-spacing:0.02em;transition:color 0.1s}
 .nbtn.on{color:var(--accent)}
-.nbtn svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke-width 0.15s}
+.nbtn svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:stroke-width 0.1s}
 .nbtn.on svg{stroke-width:2.2}
+.nbtn:active{opacity:0.7}
 
 /* ── Pages ── */
 .pg{display:none}.pg.on{display:block}
@@ -470,9 +471,14 @@ function goPg(p){
   document.getElementById('pg-'+p).classList.add('on');
   NV.forEach(id=>document.getElementById('n-'+id).classList.remove('on'));
   document.getElementById('n-'+p).classList.add('on');
-  renderAll();
+  rHead();
+  if(p==='home') rHome();
+  else if(p==='txpage') rTx();
+  else if(p==='budgetpage') rBud();
+  else if(p==='goalspage') rGoals();
+  else if(p==='addpage') setTimeout(initCamBtn,50);
 }
-function renderAll(){rHead();rHome();rTx();rBud();rGoals();setTimeout(initCamBtn,50)}
+function renderAll(){rHead();rHome();rTx();rBud();rGoals();}
 
 function rHead(){
   const inc=D.txs.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0);
@@ -492,10 +498,10 @@ function txHTML(t){
       <div class="txa ${pos?'pos':'neg'}">${pos?'+':'−'}${fmt(t.amount)}</div>
       <div class="txd">${ds}</div>
     </div>
-    <button onclick="delTx(${t.id})" style="margin-left:10px;width:28px;height:28px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700">×</button>
+    <button onclick="event.stopPropagation();this.style.opacity='0.4';requestAnimationFrame(()=>delTx(${t.id}))" style="margin-left:10px;width:28px;height:28px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;transition:opacity 0.1s">×</button>
   </div>`;
 }
-function delTx(id){D.txs=D.txs.filter(t=>t.id!==id);saveToStorage();renderAll()}
+function delTx(id){D.txs=D.txs.filter(t=>t.id!==id);saveToStorage();rHead();rTx();rHome();}
 function rHome(){
   const r=D.txs.slice().reverse().slice(0,5);
   document.getElementById('recent').innerHTML=r.length?r.map(txHTML).join(''):'<div class="empty">Гүйлгээ байхгүй</div>';
