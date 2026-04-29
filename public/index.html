@@ -596,17 +596,14 @@ function processFile(file){
     // UI шилжүүлэх
     document.getElementById('scan-zone').style.display='none';
     document.getElementById('scan-result').style.display='block';
-    document.getElementById('ex-card').style.display='none';
-    document.getElementById('edit-extracted').style.display='none';
-    document.getElementById('conf-btn').style.display='none';
-    document.getElementById('edit-btn').style.display='none';
+    document.getElementById('items-section').style.display='none';
     // Preview харуулах
     const prevWrap=document.getElementById('prev-wrap');
     const prevImg=document.getElementById('prev-img');
-    if(isImg){
+    if(isImg&&prevWrap&&prevImg){
       prevImg.src=url;
       prevWrap.style.display='block';
-    } else {
+    } else if(prevWrap){
       prevWrap.style.display='none';
     }
     setAI('scan','🧠 AI баримтыг уншиж байна...');
