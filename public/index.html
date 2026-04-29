@@ -765,46 +765,44 @@ function loadFromStorage(){
 /* ── Items нэг нэгээр нэмэх ── */
 const CATS=['Хоол','Тээвэр','Үйлчилгээ','Цэнгэл','Эрүүл мэнд','Хувцас','Бусад'];
 
-function renderItemsList(items, storeName, date){
+let itemChecked=[];
+let itemCats=[];
+
+function renderItemsList(items,storeName,date){
   document.getElementById('ex-nm').textContent=storeName||'Дэлгүүр';
   document.getElementById('ex-dt').textContent=date||'';
-  const total=items.reduce((a,it)=>a+(it.total||it.price*it.qty||0),0);
+  const total=items.reduce((a,it)=>a+(it.total||it.price*(it.qty||1)||0),0);
   document.getElementById('ex-am').textContent=fmt(total);
-
+  itemChecked=items.map(()=>true);
+  itemCats=items.map(it=>guessCategory(it.name)||'Бусад');
   const wrap=document.getElementById('items-list-wrap');
   wrap.innerHTML=items.map((it,i)=>{
-    const cat=guessCategory(it.name)||'Бусад';
-    const catOpts=CATS.map(c=>`<option${c===cat?' selected':''}>${c}</option>`).join('');
+    const catOpts=CATS.map(c=>`<option${c===itemCats[i]?' selected':''}>${c}</option>`).join('');
     const sub=it.qty>1?`${it.qty}ш × ${fmt(it.price)} = ${fmt(it.total||0)}`:`${fmt(it.total||it.price||0)}`;
-    return `<div class="item-row" id="irow-${i}">
-      <div class="item-chk on" id="ichk-${i}" onclick="toggleItem(${i})"></div>
+    return `<div class="item-row" id="irow-${i}" onclick="toggleItem(${i})" style="cursor:pointer">
+      <div class="item-chk on" id="ichk-${i}"></div>
       <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:500;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.name}</div>
         <div style="font-size:12px;color:var(--txt3);margin-top:1px">${sub}</div>
       </div>
-      <select class="item-cat" id="icat-${i}" style="width:80px;flex-shrink:0">${catOpts}</select>
+      <select class="item-cat" id="icat-${i}" style="width:80px;flex-shrink:0" onclick="event.stopPropagation()" onchange="itemCats[${i}]=this.value">${catOpts}</select>
     </div>`;
   }).join('');
   document.getElementById('items-section').style.display='block';
 }
 
 function toggleItem(i){
+  itemChecked[i]=!itemChecked[i];
   const chk=document.getElementById('ichk-'+i);
-  chk.classList.toggle('on');
-}
-
-function updateItemCat(i,val){
-  // category шинэчлэх — зөвхөн UI
+  if(chk) chk.classList.toggle('on',itemChecked[i]);
 }
 
 function addAllItems(){
   const items=D.ext?.items||[];
   const date=D.ext?.date||new Date().toISOString().split('T')[0];
   items.forEach((it,i)=>{
-    const chk=document.getElementById('ichk-'+i);
-    if(!chk||!chk.classList.contains('on')) return;
-    const cat=document.getElementById('icat-'+i)?.value||guessCategory(it.name)||'Бусад';
-    D.txs.push({id:D.nid++,type:'expense',name:it.name,amount:it.total||it.price*it.qty||it.price||0,cat,date});
+    if(!itemChecked[i]) return;
+    D.txs.push({id:D.nid++,type:'expense',name:it.name,amount:it.total||it.price*(it.qty||1)||0,cat:itemCats[i]||'Бусад',date});
   });
   saveToStorage();
   resetScan();
