@@ -700,13 +700,12 @@ function confirmScan(){
   resetScan();goPg('home');
 }
 function resetScan(){
-  stopQR();
-  document.getElementById('scan-result').style.display='none';
-  document.getElementById('items-section').style.display='none';
-  document.getElementById('scan-zone').style.display='block';
-  document.getElementById('qr-zone').style.display='none';
-  document.getElementById('file-in').value='';
-  document.getElementById('ddtd-input').value='';
+  try{stopQR()}catch{}
+  const ids=['scan-result','items-section','qr-zone'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const sz=document.getElementById('scan-zone');if(sz)sz.style.display='block';
+  const fi=document.getElementById('file-in');if(fi)fi.value='';
+  const di=document.getElementById('ddtd-input');if(di)di.value='';
   D.ext=null;
 }
 
@@ -776,14 +775,14 @@ function renderItemsList(items, storeName, date){
   wrap.innerHTML=items.map((it,i)=>{
     const cat=guessCategory(it.name)||'Бусад';
     const catOpts=CATS.map(c=>`<option${c===cat?' selected':''}>${c}</option>`).join('');
-    const qtyTxt=it.qty>1?`<span style="color:var(--txt3);font-size:11px">${it.qty}ш × ${fmt(it.price)}</span> `:'';
+    const sub=it.qty>1?`${it.qty}ш × ${fmt(it.price)} = ${fmt(it.total||0)}`:`${fmt(it.total||it.price||0)}`;
     return `<div class="item-row" id="irow-${i}">
       <div class="item-chk on" id="ichk-${i}" onclick="toggleItem(${i})"></div>
-      <div style="flex:1;min-width:0;margin-right:8px">
+      <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:500;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.name}</div>
-        <div style="margin-top:2px">${qtyTxt}<span style="font-size:13px;font-weight:600;color:var(--txt)">${fmt(it.total||it.price||0)}</span></div>
+        <div style="font-size:12px;color:var(--txt3);margin-top:1px">${sub}</div>
       </div>
-      <select class="item-cat" id="icat-${i}">${catOpts}</select>
+      <select class="item-cat" id="icat-${i}" style="width:80px;flex-shrink:0">${catOpts}</select>
     </div>`;
   }).join('');
   document.getElementById('items-section').style.display='block';
