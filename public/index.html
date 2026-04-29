@@ -675,27 +675,6 @@ async function callAI(b64,mt,isImg){
   if(!p.amount&&p.amount!==0) throw new Error('no amount');
   return p;
 }
-      D.ext=res;
-      document.getElementById('ex-nm').textContent=res.name||'—';
-      document.getElementById('ex-am').textContent=res.amount?fmt(res.amount):'—';
-      document.getElementById('ex-dt').textContent=res.date||'—';
-      document.getElementById('ex-ct').textContent=res.cat||'Бусад';
-      document.getElementById('ex-ty').textContent=res.type==='income'?'Орлого':'Зарлага';
-      document.getElementById('ex-card').style.display='block';
-      document.getElementById('conf-btn').style.display='block';
-      setAI('ok','Амжилттай! Мэдээллийг шалгаад бүртгэнэ үү.');
-      document.getElementById('f-nm').value=res.name||'';
-      document.getElementById('f-am').value=res.amount||'';
-      if(res.date)document.getElementById('f-dt').value=res.date;
-      const cs=document.getElementById('f-ct');
-      for(let i=0;i<cs.options.length;i++)if(cs.options[i].text.includes(res.cat||'')){cs.selectedIndex=i;break}
-      selT(res.type||'expense');
-    }catch{
-      setAI('err','Задлах үед алдаа гарлаа. Гараар оруулна уу.');
-    }
-  };
-  r.readAsDataURL(file);
-}
 
 function setAI(state,msg){
   document.getElementById('ai-dot').className='ai-dot '+state;
@@ -890,9 +869,6 @@ function guessCategory(name){
   if(/утас|internet|цахилгаан|electric|дулаан|ус/.test(n)) return 'Үйлчилгээ';
   return 'Бусад';
 }
-
-/* ── QR Scanner ── */
-let qrStream=null,qrTimer=null,qrDetector=null;
 
 /* ── QR Scanner — iOS Safari compatible ── */
 let qrStream=null,qrTimer=null;
