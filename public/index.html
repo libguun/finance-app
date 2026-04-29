@@ -783,7 +783,7 @@ async function callAI(b64,mt,isImg){
     :[{type:'text',text:prompt}]
   }];
 
-  const res=await fetch('https://tight-wood-dfd1finance-scan.devbilguun.workers.dev',{
+  const res=await fetch('https://tight-wood-dfd1finance-scan.devbilguun.workers.dev/scan',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
