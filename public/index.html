@@ -766,17 +766,19 @@ function toggleEdit(){
 
 async function callAI(b64,mt,isImg){
   const today = new Date().toISOString().split('T')[0];
-  const prompt=`Энэ баримт/чекнээс мэдээллийг задла. Зөвхөн JSON хариул, өөр текст бүү нэм, \`\`\`json wrapper бүү нэм.
+  const prompt=`Extract receipt info. Reply ONLY with JSON, no other text, no \`\`\`json wrapper.
 
-{"name":"дэлгүүр/компанийн нэр (чекний дээд хэсэгт байдаг, жишээ: СУПЕРМАРКЕТ, Номин, Хаан банк)","items":[{"name":"бараа нэр","qty":1,"price":1200,"total":1200}],"amount":16029,"date":"YYYY-MM-DD","type":"expense","cat":"Хүнс"}
+{"name":"store name from top of receipt","items":[{"name":"item name in Mongolian Cyrillic","qty":1,"price":1200,"total":1200}],"amount":16029,"date":"YYYY-MM-DD","type":"expense","cat":"Хүнс"}
 
-Дүрэм:
-- name: чекний хамгийн дээд хэсэгт байгаа дэлгүүр/компанийн нэр. Харагдахгүй бол "Дэлгүүр" гэж бич
-- items: бүх бараа бүтээгдэхүүн
-- amount: нийт төлбөрийн дүн (зөвхөн тоо)
-- date: баримтын огноо, байхгүй бол "${today}"
-- type: үргэлж "expense"
-- cat: Хүнс/Орон сууц/Тээврийн хэрэгсэл/Ахуйн хэрэглээ/Харилцаа холбоо/Амрал зугаалга/Боловсрол/Эрүүл мэнд/Төрийн үйлчилгээ/Үзвэр үйлчилгээ/Бэлэн хувцас/Бусад`;
+Rules:
+- name: store/company name from the top of receipt. If not visible write "Дэлгүүр"
+- items: all products/items. Write names in Mongolian Cyrillic exactly as shown (preserve ө ү ё characters)
+- amount: total payment amount (number only)
+- date: receipt date, if missing use "${today}"
+- type: always "expense"
+- cat: choose one: Хүнс/Орон сууц/Тээврийн хэрэгсэл/Ахуйн хэрэглээ/Харилцаа холбоо/Амрал зугаалга/Боловсрол/Эрүүл мэнд/Төрийн үйлчилгээ/Үзвэр үйлчилгээ/Бэлэн хувцас/Бусад
+
+IMPORTANT: Mongolian Cyrillic letters like ө (U+04E9), ү (U+04AF), ё must be preserved exactly. Example: Сүү not Суу, Өндөг not Ондог.`;
 
   const msgs=[{role:'user',content:isImg
     ?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]
