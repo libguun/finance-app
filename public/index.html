@@ -176,10 +176,54 @@ input:focus,select:focus{border-color:var(--accent)}
 .inst-sub{font-size:12px;color:var(--txt3);margin-top:2px}
 .inst-btn{padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
 .inst-x{background:none;border:none;font-size:20px;color:var(--txt3);cursor:pointer;padding:0 0 0 4px;flex-shrink:0;line-height:1}
+.item-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border)}
+.item-row:last-child{border-bottom:none}
+.item-chk{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border2);background:var(--surface);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.item-chk.on{background:var(--accent);border-color:var(--accent)}
+.item-chk.on::after{content:'✓';color:#fff;font-size:12px;font-weight:700}
+.item-cat{font-size:11px;padding:3px 8px;border-radius:10px;background:var(--surface2);border:none;color:var(--txt2);font-family:inherit;cursor:pointer}
+/* Login */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:var(--surface);border-radius:24px;border:1px solid var(--border);padding:32px 24px;width:100%;max-width:340px;text-align:center}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin:24px 0}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--border2);transition:background 0.15s}
+.pin-dot.filled{background:var(--accent)}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pin-btn{padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--txt);font-size:20px;font-weight:500;cursor:pointer;font-family:inherit;transition:background 0.1s}
+.pin-btn:active{background:var(--surface2)}
 </style>
 </head>
 <body>
-<div class="app">
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div style="font-size:40px;margin-bottom:12px">💰</div>
+    <div style="font-size:22px;font-weight:700;color:var(--txt);margin-bottom:4px">Миний санхүү</div>
+    <div style="font-size:14px;color:var(--txt3);margin-bottom:4px">PIN кодоо оруулна уу</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div id="pin-err" style="color:var(--red);font-size:13px;margin-bottom:10px;min-height:18px"></div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn" onclick="pinPress('')" style="font-size:14px">⌫</button>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn" onclick="pinPress('ok')" style="background:var(--accent);color:#fff;border-color:var(--accent)">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
 
 <!-- Header -->
 <div class="hdr">
@@ -309,9 +353,9 @@ input:focus,select:focus{border-color:var(--accent)}
     </div>
 
     <div id="scan-result" style="display:none">
-      <!-- Зургийн preview -->
+      <!-- Preview -->
       <div id="prev-wrap" style="position:relative;margin-bottom:14px;display:none">
-        <img id="prev-img" style="width:100%;max-height:220px;object-fit:contain;border-radius:16px;border:1px solid var(--border);background:var(--surface2)">
+        <img id="prev-img" style="width:100%;max-height:200px;object-fit:contain;border-radius:16px;border:1px solid var(--border);background:var(--surface2)">
         <div style="position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px">AI задалж байна</div>
       </div>
       <!-- Status -->
@@ -319,54 +363,27 @@ input:focus,select:focus{border-color:var(--accent)}
         <div class="ai-dot scan" id="ai-dot"></div>
         <div class="ai-txt" id="ai-txt">AI задлан шинжилж байна...</div>
       </div>
-      <!-- Олдсон мэдээлэл -->
-      <div class="ex-card" id="ex-card" style="display:none">
-        <div class="ex-ttl">✓ AI олсон мэдээлэл</div>
-        <div class="ex-row"><span class="ex-l">🏪 Дэлгүүр</span><span class="ex-v" id="ex-nm">—</span></div>
-        <div class="ex-row"><span class="ex-l">📅 Огноо</span><span class="ex-v" id="ex-dt">—</span></div>
-        <div class="ex-row"><span class="ex-l">🏷 Ангилал</span><span class="ex-v" id="ex-ct">—</span></div>
-        <!-- Бараа бүтээгдэхүүний жагсаалт -->
-        <div id="ex-items" style="display:none;margin:10px 0;border-top:1px solid var(--accent);padding-top:10px">
-          <div style="font-size:11px;font-weight:700;color:var(--accent-d);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Бараа бүтээгдэхүүн</div>
-          <div id="ex-items-list"></div>
+      <!-- Items нэг нэгээр нэмэх -->
+      <div id="items-section" style="display:none">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px">
+          <div style="padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--txt)" id="ex-nm">—</div>
+              <div style="font-size:12px;color:var(--txt3);margin-top:2px" id="ex-dt">—</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:12px;color:var(--txt3)">Нийт дүн</div>
+              <div style="font-size:17px;font-weight:700;color:var(--red)" id="ex-am">—</div>
+            </div>
+          </div>
+          <!-- Items жагсаалт -->
+          <div id="items-list-wrap"></div>
         </div>
-        <div class="ex-row" style="border-top:1px solid var(--accent);padding-top:8px;margin-top:4px">
-          <span class="ex-l" style="font-weight:700">💰 Нийт дүн</span>
-          <span class="ex-v" id="ex-am" style="color:var(--red);font-size:16px;font-weight:700">—</span>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button class="sbtn" onclick="addAllItems()" style="flex:1;background:var(--accent)">✓ Бүгдийг нэмэх</button>
         </div>
+        <button class="cancel-btn" onclick="resetScan()">← Буцах</button>
       </div>
-      <!-- Мэдээлэл засах боломж -->
-      <div id="edit-extracted" style="display:none;margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Засах боломжтой</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <div>
-            <label style="font-size:11px;color:var(--txt3);display:block;margin-bottom:4px">Нэр</label>
-            <input type="text" id="edit-nm" style="font-size:13px;padding:9px 11px">
-          </div>
-          <div>
-            <label style="font-size:11px;color:var(--txt3);display:block;margin-bottom:4px">Дүн (₮)</label>
-            <input type="number" id="edit-am" style="font-size:13px;padding:9px 11px">
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div>
-            <label style="font-size:11px;color:var(--txt3);display:block;margin-bottom:4px">Огноо</label>
-            <input type="date" id="edit-dt" style="font-size:13px;padding:9px 11px">
-          </div>
-          <div>
-            <label style="font-size:11px;color:var(--txt3);display:block;margin-bottom:4px">Ангилал</label>
-            <select id="edit-ct" style="font-size:13px;padding:9px 11px">
-              <option>Хоол</option><option>Тээвэр</option><option>Үйлчилгээ</option>
-              <option>Цэнгэл</option><option>Эрүүл мэнд</option><option>Хувцас</option><option>Бусад</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <button class="sbtn" id="conf-btn" style="display:none;flex:1" onclick="confirmScan()">✓ Бүртгэх</button>
-        <button id="edit-btn" style="display:none;padding:14px;border:1.5px solid var(--border2);border-radius:14px;background:transparent;color:var(--txt2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit" onclick="toggleEdit()">✏️</button>
-      </div>
-      <button class="cancel-btn" onclick="resetScan()">← Буцах</button>
     </div>
 
     <div class="or-div">эсвэл гараар оруулах</div>
@@ -478,7 +495,7 @@ function txHTML(t){
     <button onclick="delTx(${t.id})" style="margin-left:10px;width:28px;height:28px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700">×</button>
   </div>`;
 }
-function delTx(id){D.txs=D.txs.filter(t=>t.id!==id);renderAll()}
+function delTx(id){D.txs=D.txs.filter(t=>t.id!==id);saveToStorage();renderAll()}
 function rHome(){
   const r=D.txs.slice().reverse().slice(0,5);
   document.getElementById('recent').innerHTML=r.length?r.map(txHTML).join(''):'<div class="empty">Гүйлгээ байхгүй</div>';
@@ -513,8 +530,8 @@ function rGoals(){
     return `<div class="gi"><div class="gico" style="background:${GB[g.icon]||'#E1F5EE'}">${g.icon}</div><div class="gb"><div class="gn">${g.name}</div><div class="gs">${fmt(g.saved)} / ${fmt(g.target)} · ${fmt(g.target-g.saved)} үлдсэн</div><div class="gtr"><div class="gf" style="width:${p}%"></div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0"><div class="gp">${p}%</div><button onclick="delGoal(${i})" style="width:26px;height:26px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700">×</button></div></div>`;
   }).join(''):'<div class="empty">Зорилт байхгүй</div>';
 }
-function delBud(cat){D.budgets=D.budgets.filter(b=>b.cat!==cat);rBud()}
-function delGoal(i){D.goals.splice(i,1);rGoals()}
+function delBud(cat){D.budgets=D.budgets.filter(b=>b.cat!==cat);saveToStorage();rBud()}
+function delGoal(i){D.goals.splice(i,1);saveToStorage();rGoals()}
 function selT(t){
   D.ty=t;
   document.getElementById('btn-exp').className='tbtn'+(t==='expense'?' se':'');
@@ -527,6 +544,7 @@ function addTx(){
   const ct=document.getElementById('f-ct').value;
   if(!nm||!am||am<=0)return;
   D.txs.push({id:D.nid++,type:D.ty,name:nm,amount:am,cat:ct,date:dt});
+  saveToStorage();
   ['f-nm','f-am','f-nt'].forEach(id=>document.getElementById(id).value='');
   goPg('home');
 }
@@ -536,6 +554,7 @@ function addBudget(){
   if(!lim||lim<=0)return;
   const i=D.budgets.findIndex(b=>b.cat===cat);
   if(i>=0)D.budgets[i].limit=lim;else D.budgets.push({cat,limit:lim});
+  saveToStorage();
   document.getElementById('b-lim').value='';rBud();
 }
 function addGoal(){
@@ -545,6 +564,7 @@ function addGoal(){
   const ico=document.getElementById('g-ico').value;
   if(!nm||!tgt)return;
   D.goals.push({name:nm,target:tgt,saved:sv,icon:ico});
+  saveToStorage();
   ['g-name','g-tgt','g-sv'].forEach(id=>document.getElementById(id).value='');
   rGoals();
 }
@@ -596,45 +616,9 @@ function processFile(file){
       const res=await callAI(b64,'image/jpeg',isImg);
       D.ext=res;
       // Үр дүн харуулах
-      document.getElementById('ex-nm').textContent=res.name||'—';
-      document.getElementById('ex-am').textContent=res.amount?fmt(res.amount):'—';
-      document.getElementById('ex-dt').textContent=res.date||'—';
-      document.getElementById('ex-ct').textContent=res.cat||'Бусад';
-      document.getElementById('ex-ty').textContent=res.type==='income'?'Орлого ↑':'Зарлага ↓';
-      // Бараа жагсаалт харуулах
-      const itemsEl=document.getElementById('ex-items');
-      const itemsList=document.getElementById('ex-items-list');
-      if(res.items&&res.items.length>0){
-        itemsList.innerHTML=res.items.map(it=>`
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--accent-bg);font-size:13px">
-            <div style="flex:1;min-width:0">
-              <div style="font-weight:500;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.name||'—'}</div>
-              ${it.qty>1?`<div style="color:var(--txt3);font-size:11px">${it.qty} ш × ${fmt(it.price)}</div>`:''}
-            </div>
-            <div style="font-weight:600;color:var(--txt);margin-left:10px;flex-shrink:0">${fmt(it.total||it.price)}</div>
-          </div>`).join('');
-        itemsEl.style.display='block';
-      } else {
-        itemsEl.style.display='none';
-      }
-      document.getElementById('ex-card').style.display='block';
-      document.getElementById('conf-btn').style.display='block';
-      document.getElementById('edit-btn').style.display='block';
-      // Edit талбаруудад дүүргэх
-      document.getElementById('edit-nm').value=res.name||'';
-      document.getElementById('edit-am').value=res.amount||'';
-      document.getElementById('edit-dt').value=res.date||new Date().toISOString().split('T')[0];
-      const cs=document.getElementById('edit-ct');
-      for(let i=0;i<cs.options.length;i++)if(cs.options[i].value===res.cat){cs.selectedIndex=i;break}
-      // Гараар бөглөх талбаруудад ч дүүргэх
-      document.getElementById('f-nm').value=res.name||'';
-      document.getElementById('f-am').value=res.amount||'';
-      if(res.date)document.getElementById('f-dt').value=res.date;
-      selT(res.type||'expense');
-      setAI('ok','✅ Амжилттай уншлаа! Шалгаад бүртгэнэ үү.');
-      // Preview дээрх badge арилгах
-      const badge=document.querySelector('#prev-wrap div');
-      if(badge)badge.style.display='none';
+      // Items жагсаалт харуулах
+      renderItemsList(res.items||[], res.name, res.date);
+      setAI('ok','✅ Амжилттай! Нэмэх item-уудаа сонгоно уу.');
     }catch(err){
       setAI('err','❌ Уншихад алдаа гарлаа. Зургаа илүү тод дарж оруулна уу.');
     }
@@ -665,27 +649,17 @@ function toggleEdit(){
 
 async function callAI(b64,mt,isImg){
   const today = new Date().toISOString().split('T')[0];
-  const prompt=`Энэ баримт/чекнээс мэдээллийг задла. Зөвхөн JSON хариул, өөр текст бүү нэм.
+  const prompt=`Энэ баримт/чекнээс мэдээллийг задла. Зөвхөн JSON хариул, өөр текст бүү нэм, \`\`\`json wrapper бүү нэм.
 
-{
-  "name": "дэлгүүрийн нэр эсвэл компанийн нэр",
-  "items": [
-    {"name": "бараа/үйлчилгээний нэр", "qty": 1, "price": 1200, "total": 1200},
-    {"name": "бараа/үйлчилгээний нэр", "qty": 2, "price": 3500, "total": 7000}
-  ],
-  "amount": 16029,
-  "date": "YYYY-MM-DD",
-  "type": "expense",
-  "cat": "Хоол"
-}
+{"name":"дэлгүүр/компанийн нэр (чекний дээд хэсэгт байдаг, жишээ: СУПЕРМАРКЕТ, Номин, Хаан банк)","items":[{"name":"бараа нэр","qty":1,"price":1200,"total":1200}],"amount":16029,"date":"YYYY-MM-DD","type":"expense","cat":"Хоол"}
 
 Дүрэм:
-- items: чек дээрх бүх бараа бүтээгдэхүүний жагсаалт
-- amount: нийт төлбөрийн дүн (тоо, тэмдэг бүү нэм)
+- name: чекний хамгийн дээд хэсэгт байгаа дэлгүүр/компанийн нэр. Харагдахгүй бол "Дэлгүүр" гэж бич
+- items: бүх бараа бүтээгдэхүүн
+- amount: нийт төлбөрийн дүн (зөвхөн тоо)
 - date: баримтын огноо, байхгүй бол "${today}"
-- cat: Хоол / Тээвэр / Үйлчилгээ / Цэнгэл / Эрүүл мэнд / Хувцас / Бусад
-- Кирилл болон латин үсэг аль алиныг уншина
-- Мэдээлэл харагдахгүй бол null`;
+- type: үргэлж "expense"
+- cat: Хоол/Тээвэр/Үйлчилгээ/Цэнгэл/Эрүүл мэнд/Хувцас/Бусад`;
 
   const msgs=[{role:'user',content:isImg
     ?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]
@@ -724,19 +698,14 @@ function setAI(state,msg){
 
 function confirmScan(){
   if(!D.ext)return;
-  // Edit хийсэн бол шинэчлэх
-  if(document.getElementById('edit-extracted').style.display!=='none'){
-    D.ext.name=document.getElementById('edit-nm').value||D.ext.name;
-    D.ext.amount=parseFloat(document.getElementById('edit-am').value)||D.ext.amount;
-    D.ext.date=document.getElementById('edit-dt').value||D.ext.date;
-    D.ext.cat=document.getElementById('edit-ct').value||D.ext.cat;
-  }
   D.txs.push({id:D.nid++,type:D.ext.type||'expense',name:D.ext.name||'Баримт',amount:D.ext.amount||0,cat:D.ext.cat||'Бусад',date:D.ext.date||new Date().toISOString().split('T')[0]});
+  saveToStorage();
   resetScan();goPg('home');
 }
 function resetScan(){
   stopQR();
   document.getElementById('scan-result').style.display='none';
+  document.getElementById('items-section').style.display='none';
   document.getElementById('scan-zone').style.display='block';
   document.getElementById('qr-zone').style.display='none';
   document.getElementById('file-in').value='';
@@ -744,7 +713,118 @@ function resetScan(){
   D.ext=null;
 }
 
-/* ── eBarimt API ── */
+/* ── PIN нэвтрэлт ── */
+const PIN='1234';
+let pinInput='';
+
+function pinPress(v){
+  const errEl=document.getElementById('pin-err');
+  errEl.textContent='';
+  if(v===''){pinInput=pinInput.slice(0,-1);}
+  else if(v==='ok'){
+    if(pinInput===PIN){
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('app').style.display='block';
+      loadFromStorage();
+      renderAll();
+    } else {
+      errEl.textContent='PIN буруу байна';
+      pinInput='';
+    }
+  } else {
+    if(pinInput.length<4) pinInput+=v;
+  }
+  // Dots шинэчлэх
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('d'+i);
+    d.classList.toggle('filled',i<pinInput.length);
+  }
+  // 4 оронтой болмогц автоматаар шалгах
+  if(pinInput.length===4) setTimeout(()=>pinPress('ok'),150);
+}
+
+/* ── localStorage ── */
+function saveToStorage(){
+  try{
+    localStorage.setItem('fin_txs',JSON.stringify(D.txs));
+    localStorage.setItem('fin_budgets',JSON.stringify(D.budgets));
+    localStorage.setItem('fin_goals',JSON.stringify(D.goals));
+    localStorage.setItem('fin_nid',String(D.nid));
+  }catch{}
+}
+
+function loadFromStorage(){
+  try{
+    const txs=localStorage.getItem('fin_txs');
+    const budgets=localStorage.getItem('fin_budgets');
+    const goals=localStorage.getItem('fin_goals');
+    const nid=localStorage.getItem('fin_nid');
+    if(txs) D.txs=JSON.parse(txs);
+    if(budgets) D.budgets=JSON.parse(budgets);
+    if(goals) D.goals=JSON.parse(goals);
+    if(nid) D.nid=parseInt(nid);
+  }catch{}
+}
+
+/* ── Items нэг нэгээр нэмэх ── */
+const CATS=['Хоол','Тээвэр','Үйлчилгээ','Цэнгэл','Эрүүл мэнд','Хувцас','Бусад'];
+
+function renderItemsList(items, storeName, date){
+  document.getElementById('ex-nm').textContent=storeName||'Дэлгүүр';
+  document.getElementById('ex-dt').textContent=date||'';
+  const total=items.reduce((a,it)=>a+(it.total||it.price*it.qty||0),0);
+  document.getElementById('ex-am').textContent=fmt(total);
+
+  const wrap=document.getElementById('items-list-wrap');
+  wrap.innerHTML=items.map((it,i)=>{
+    const cat=guessCategory(it.name)||'Бусад';
+    const catOpts=CATS.map(c=>`<option${c===cat?' selected':''}>${c}</option>`).join('');
+    return `<div class="item-row" id="irow-${i}">
+      <div class="item-chk on" id="ichk-${i}" onclick="toggleItem(${i})"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:500;color:var(--txt)">${it.name}</div>
+        <div style="font-size:12px;color:var(--txt3)">${it.qty>1?it.qty+' ш × '+fmt(it.price)+' = ':''}<b>${fmt(it.total||it.price)}</b></div>
+      </div>
+      <select class="item-cat" id="icat-${i}" onchange="updateItemCat(${i},this.value)">${catOpts}</select>
+    </div>`;
+  }).join('');
+  document.getElementById('items-section').style.display='block';
+}
+
+function toggleItem(i){
+  const chk=document.getElementById('ichk-'+i);
+  chk.classList.toggle('on');
+}
+
+function updateItemCat(i,val){
+  // category шинэчлэх — зөвхөн UI
+}
+
+function addAllItems(){
+  const items=D.ext?.items||[];
+  const date=D.ext?.date||new Date().toISOString().split('T')[0];
+  let added=0;
+  items.forEach((it,i)=>{
+    const chk=document.getElementById('ichk-'+i);
+    if(!chk||!chk.classList.contains('on')) return;
+    const cat=document.getElementById('icat-'+i)?.value||guessCategory(it.name)||'Бусад';
+    D.txs.push({
+      id:D.nid++,
+      type:'expense',
+      name:it.name,
+      amount:it.total||it.price*it.qty||it.price||0,
+      cat,
+      date
+    });
+    added++;
+  });
+  if(added>0){
+    saveToStorage();
+    resetScan();
+    goPg('home');
+  }
+}
+
 let ebarimtToken = null;
 
 // ebarimt.mn-д нэвтэрч token авна
