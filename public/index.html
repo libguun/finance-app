@@ -192,6 +192,9 @@ input:focus,select:focus{border-color:var(--accent)}
 .pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .pin-btn{padding:16px;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--txt);font-size:20px;font-weight:500;cursor:pointer;font-family:inherit;transition:background 0.1s}
 .pin-btn:active{background:var(--surface2)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.modal-box{background:var(--surface);border-radius:22px 22px 0 0;padding:24px 20px 36px;width:100%;max-width:430px;animation:slideUp 0.2s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 </style>
 </head>
 <body>
@@ -425,6 +428,13 @@ input:focus,select:focus{border-color:var(--accent)}
   </button>
 </nav>
 
+<!-- Modal -->
+<div id="modal-bg" class="modal-bg" style="display:none" onclick="if(event.target===this)hideModal()">
+  <div class="modal-box">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
 </div><!-- .app -->
 
 <script>
@@ -491,14 +501,14 @@ function txHTML(t){
   const d=new Date(t.date);
   const ds=(d.getMonth()+1)+'/'+(d.getDate());
   const pos=t.type==='income';
-  return `<div class="txi" id="tx-${t.id}">
+  return `<div class="txi" id="tx-${t.id}" onclick="editTx(${t.id})" style="cursor:pointer">
     <div class="txdot" style="background:${CB[t.cat]||'#F1EFE8'}">${CI[t.cat]||'📦'}</div>
     <div class="txb"><div class="txn">${t.name}</div><div class="txm">${t.cat}</div></div>
     <div class="txr">
       <div class="txa ${pos?'pos':'neg'}">${pos?'+':'−'}${fmt(t.amount)}</div>
       <div class="txd">${ds}</div>
     </div>
-    <button onclick="event.stopPropagation();this.style.opacity='0.4';requestAnimationFrame(()=>delTx(${t.id}))" style="margin-left:10px;width:28px;height:28px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;transition:opacity 0.1s">×</button>
+    <button onclick="event.stopPropagation();this.style.opacity='0.4';requestAnimationFrame(()=>delTx(${t.id}))" style="margin-left:8px;width:28px;height:28px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700">×</button>
   </div>`;
 }
 function delTx(id){
@@ -546,8 +556,72 @@ function rGoals(){
   const el=document.getElementById('goal-list');
   el.innerHTML=D.goals.length?D.goals.map((g,i)=>{
     const p=Math.min(100,Math.round(g.saved/g.target*100));
-    return `<div class="gi"><div class="gico" style="background:${GB[g.icon]||'#E1F5EE'}">${g.icon}</div><div class="gb"><div class="gn">${g.name}</div><div class="gs">${fmt(g.saved)} / ${fmt(g.target)} · ${fmt(g.target-g.saved)} үлдсэн</div><div class="gtr"><div class="gf" style="width:${p}%"></div></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0"><div class="gp">${p}%</div><button onclick="delGoal(${i})" style="width:26px;height:26px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700">×</button></div></div>`;
-  }).join(''):'<div class="empty">Зорилт байхгүй</div>';
+    const left=g.target-g.saved;
+    const col=p>=100?'#1D9E75':p>50?'#185FA5':'#1D9E75';
+    return `<div class="gi">
+      <div class="gico" style="background:${GB[g.icon]||'#E1F5EE'}">${g.icon}</div>
+      <div class="gb" onclick="editGoal(${i})" style="cursor:pointer">
+        <div class="gn">${g.name}</div>
+        <div class="gs">${fmt(g.saved)} / ${fmt(g.target)}${p>=100?' ✓':' · '+fmt(left)+' үлдсэн'}</div>
+        <div class="gtr"><div class="gf" style="width:${p}%;background:${col}"></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <div class="gp" style="color:${col}">${p}%</div>
+        <div style="display:flex;gap:4px">
+          <button onclick="addGoalMoney(${i})" style="width:26px;height:26px;border-radius:50%;border:none;background:var(--accent-bg);color:var(--accent-d);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700">+</button>
+          <button onclick="delGoal(${i})" style="width:26px;height:26px;border-radius:50%;border:none;background:var(--red-bg);color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700">×</button>
+        </div>
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty">Хадгаламжийн зорилт байхгүй байна<br><small>Доор нэмнэ үү</small></div>';
+}
+
+function addGoalMoney(i){
+  const g=D.goals[i];
+  if(!g) return;
+  showModal(`
+    <div style="font-size:18px;font-weight:700;color:var(--txt);margin-bottom:4px">${g.icon} ${g.name}</div>
+    <div style="font-size:13px;color:var(--txt3);margin-bottom:16px">${fmt(g.saved)} / ${fmt(g.target)}</div>
+    <label style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:6px">Нэмэх дүн (₮)</label>
+    <input type="number" id="modal-amt" placeholder="50000" style="width:100%;padding:12px 14px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:16px;font-family:inherit;outline:none;margin-bottom:14px">
+    <button onclick="confirmGoalMoney(${i})" style="width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Нэмэх</button>
+  `);
+  setTimeout(()=>document.getElementById('modal-amt')?.focus(),100);
+}
+
+function confirmGoalMoney(i){
+  const amt=parseFloat(document.getElementById('modal-amt')?.value);
+  if(!amt||amt<=0) return;
+  D.goals[i].saved=Math.min(D.goals[i].target, (D.goals[i].saved||0)+amt);
+  saveToStorage();
+  hideModal();
+  rGoals();
+}
+
+function editGoal(i){
+  const g=D.goals[i];
+  if(!g) return;
+  showModal(`
+    <div style="font-size:18px;font-weight:700;color:var(--txt);margin-bottom:16px">✏️ Зорилт засах</div>
+    <label style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Нэр</label>
+    <input type="text" id="modal-gname" value="${g.name}" style="width:100%;padding:11px 13px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none;margin-bottom:10px">
+    <label style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Зорилго (₮)</label>
+    <input type="number" id="modal-gtgt" value="${g.target}" style="width:100%;padding:11px 13px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none;margin-bottom:10px">
+    <label style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Хуримтлуулсан (₮)</label>
+    <input type="number" id="modal-gsv" value="${g.saved}" style="width:100%;padding:11px 13px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none;margin-bottom:14px">
+    <button onclick="confirmEditGoal(${i})" style="width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Хадгалах</button>
+  `);
+}
+
+function confirmEditGoal(i){
+  const nm=document.getElementById('modal-gname')?.value.trim();
+  const tgt=parseFloat(document.getElementById('modal-gtgt')?.value);
+  const sv=parseFloat(document.getElementById('modal-gsv')?.value)||0;
+  if(!nm||!tgt) return;
+  D.goals[i]={...D.goals[i],name:nm,target:tgt,saved:sv};
+  saveToStorage();
+  hideModal();
+  rGoals();
 }
 function delBud(cat){
   D.budgets=D.budgets.filter(b=>b.cat!==cat);
@@ -734,6 +808,57 @@ function resetScan(){
   const fi=document.getElementById('file-in');if(fi)fi.value='';
   const di=document.getElementById('ddtd-input');if(di)di.value='';
   D.ext=null;
+}
+
+/* ── Modal ── */
+function showModal(html){
+  document.getElementById('modal-content').innerHTML=html;
+  document.getElementById('modal-bg').style.display='flex';
+}
+function hideModal(){
+  document.getElementById('modal-bg').style.display='none';
+}
+
+/* ── Гүйлгээ засах ── */
+function editTx(id){
+  const t=D.txs.find(tx=>tx.id===id);
+  if(!t) return;
+  const catOpts=['Хоол','Тээвэр','Үйлчилгээ','Цалин','Цэнгэл','Эрүүл мэнд','Хувцас','Бусад']
+    .map(c=>`<option${c===t.cat?' selected':''}>${c}</option>`).join('');
+  showModal(`
+    <div style="font-size:18px;font-weight:700;color:var(--txt);margin-bottom:16px">✏️ Гүйлгээ засах</div>
+    <label style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Нэр</label>
+    <input type="text" id="etx-nm" value="${t.name}" style="width:100%;padding:11px 13px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none;margin-bottom:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Дүн (₮)</label>
+        <input type="number" id="etx-am" value="${t.amount}" style="width:100%;padding:11px 13px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Огноо</label>
+        <input type="date" id="etx-dt" value="${t.date}" style="width:100%;padding:11px 13px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:14px;font-family:inherit;outline:none">
+      </div>
+    </div>
+    <label style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Ангилал</label>
+    <select id="etx-ct" style="width:100%;padding:11px 13px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none;margin-bottom:14px;-webkit-appearance:none">${catOpts}</select>
+    <div style="display:flex;gap:8px">
+      <button onclick="hideModal()" style="flex:1;padding:13px;background:var(--surface2);color:var(--txt2);border:1px solid var(--border2);border-radius:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Болих</button>
+      <button onclick="confirmEditTx(${id})" style="flex:2;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">Хадгалах</button>
+    </div>
+  `);
+}
+
+function confirmEditTx(id){
+  const nm=document.getElementById('etx-nm')?.value.trim();
+  const am=parseFloat(document.getElementById('etx-am')?.value);
+  const dt=document.getElementById('etx-dt')?.value;
+  const ct=document.getElementById('etx-ct')?.value;
+  if(!nm||!am) return;
+  const idx=D.txs.findIndex(t=>t.id===id);
+  if(idx>=0) D.txs[idx]={...D.txs[idx],name:nm,amount:am,date:dt,cat:ct};
+  saveToStorage();
+  hideModal();
+  rHead();rTx();rHome();
 }
 
 /* ── PIN нэвтрэлт ── */
@@ -993,12 +1118,18 @@ async function doEbarimtLogin(ddtd) {
 
 function guessCategory(name){
   const n=(name||'').toLowerCase();
-  if(/market|дэлгүүр|food|хоол|супер|зах|nomin|номин/.test(n)) return 'Хоол';
-  if(/taxi|убер|uber|bus|автобус|тээвэр|fuel|шатахуун|petrol/.test(n)) return 'Тээвэр';
-  if(/эмнэлэг|hospital|pharmacy|эм|health/.test(n)) return 'Эрүүл мэнд';
-  if(/кино|cinema|coffee|кафе|ресторан|restaurant/.test(n)) return 'Цэнгэл';
-  if(/хувцас|clothes|fashion/.test(n)) return 'Хувцас';
-  if(/утас|internet|цахилгаан|electric|дулаан|ус/.test(n)) return 'Үйлчилгээ';
+  // Хоол хүнс
+  if(/талх|сүү|мах|өндөг|тос|гурил|будаа|чихэр|жигнэмэг|ус|уух|идэх|хоол|market|дэлгүүр|супер|зах|nomin|номин|food|drink|bread|milk|meat|rice|нарийн боов|пирог|жүүс|кола|кофе|кафе|ресторан|restaurant|cafe|pizza|бургер|burger|хуурга|шөл|гурилтай/.test(n)) return 'Хоол';
+  // Тээвэр
+  if(/taxi|такси|убер|uber|bus|автобус|тээвэр|fuel|шатахуун|petrol|бензин|дизель|метро|нисэх|онгоц|зорчигч|унаа|машин|зогсоол|parking/.test(n)) return 'Тээвэр';
+  // Эрүүл мэнд
+  if(/эмнэлэг|эм|hospital|pharmacy|дэн|clinic|эмч|үзлэг|дүрс|шинжилгээ|health|витамин|маск|хэмжих/.test(n)) return 'Эрүүл мэнд';
+  // Цэнгэл
+  if(/кино|cinema|тоглоом|game|netflix|spotify|youtube|дэлхийн|concert|спорт|sport|gym|фитнес|fitness|боулинг|кино|theatre/.test(n)) return 'Цэнгэл';
+  // Хувцас
+  if(/хувцас|гутал|clothes|fashion|wear|shirt|pants|jacket|coat|цамц|өмд|пальто|малгай|оймс|бээлий|дэгэл/.test(n)) return 'Хувцас';
+  // Үйлчилгээ
+  if(/утас|internet|цахилгаан|electric|дулаан|ус|phone|wifi|tv|телевиз|мэйл|дата|хаус|байр|түрээс|rent|засвар|угаалга|үсчин|golomt|хаан|tdb|monpay|lendmn/.test(n)) return 'Үйлчилгээ';
   return 'Бусад';
 }
 
