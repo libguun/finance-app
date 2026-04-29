@@ -291,7 +291,7 @@ input:focus,select:focus{border-color:var(--accent)}
     <div class="sec-hdr"><span class="sec-ttl">Төсөв нэмэх</span></div>
     <div class="card"><div class="addw" style="padding:16px">
       <div class="fg"><label class="fl">Ангилал</label>
-        <select id="b-cat"><option>Хоол</option><option>Тээвэр</option><option>Үйлчилгээ</option><option>Цэнгэл</option><option>Эрүүл мэнд</option><option>Хувцас</option><option>Бусад</option></select>
+        <select id="b-cat"><option>Хүнс</option><option>Орон сууц</option><option>Тээврийн хэрэгсэл</option><option>Ахуйн хэрэглээ</option><option>Харилцаа холбоо</option><option>Амрал зугаалга</option><option>Боловсрол</option><option>Эрүүл мэнд</option><option>Төрийн үйлчилгээ</option><option>Үзвэр үйлчилгээ</option><option>Бэлэн хувцас</option><option>Бусад</option></select>
       </div>
       <div class="fg"><label class="fl">Хязгаар (₮)</label><input type="number" id="b-lim" placeholder="500000"></div>
       <button class="sbtn" onclick="addBudget()">Хадгалах</button>
@@ -402,7 +402,7 @@ input:focus,select:focus{border-color:var(--accent)}
       <div class="fg" style="margin-bottom:0"><label class="fl">Огноо</label><input type="date" id="f-dt"></div>
     </div>
     <div class="fg"><label class="fl">Ангилал</label>
-      <select id="f-ct"><option>Хоол</option><option>Тээвэр</option><option>Үйлчилгээ</option><option>Цалин</option><option>Цэнгэл</option><option>Эрүүл мэнд</option><option>Хувцас</option><option>Бусад</option></select>
+      <select id="f-ct"><option>Хүнс</option><option>Орон сууц</option><option>Тээврийн хэрэгсэл</option><option>Ахуйн хэрэглээ</option><option>Харилцаа холбоо</option><option>Амрал зугаалга</option><option>Боловсрол</option><option>Эрүүл мэнд</option><option>Төрийн үйлчилгээ</option><option>Үзвэр үйлчилгээ</option><option>Бэлэн хувцас</option><option>Бусад</option><option>Цалин</option><option>Нэмэлт орлого</option><option>Бизнес</option></select>
     </div>
     <div class="fg"><label class="fl">Тэмдэглэл</label><input type="text" id="f-nt" placeholder="заавал биш..."></div>
     <button class="sbtn" onclick="addTx()">Хадгалах</button>
@@ -438,9 +438,9 @@ input:focus,select:focus{border-color:var(--accent)}
 </div><!-- .app -->
 
 <script>
-const CC={Хоол:'#1D9E75',Тээвэр:'#378ADD',Үйлчилгээ:'#7F77DD',Цалин:'#1D9E75',Цэнгэл:'#D85A30','Эрүүл мэнд':'#D4537E',Хувцас:'#BA7517',Бусад:'#888780'};
-const CB={Хоол:'#E1F5EE',Тээвэр:'#E6F1FB',Үйлчилгээ:'#EEEDFE',Цалин:'#E1F5EE',Цэнгэл:'#FAECE7','Эрүүл мэнд':'#FBEAF0',Хувцас:'#FAEEDA',Бусад:'#F1EFE8'};
-const CI={Хоол:'🍜',Тээвэр:'🚌',Үйлчилгээ:'⚡',Цалин:'💼',Цэнгэл:'🎮','Эрүүл мэнд':'🏥',Хувцас:'👕',Бусад:'📦'};
+const CC={'Хүнс':'#1D9E75','Орон сууц':'#185FA5','Тээврийн хэрэгсэл':'#378ADD','Ахуйн хэрэглээ':'#7F77DD','Харилцаа холбоо':'#534AB7','Амрал зугаалга':'#D85A30','Боловсрол':'#BA7517','Эрүүл мэнд':'#D4537E','Төрийн үйлчилгээ':'#5F5E5A','Үзвэр үйлчилгээ':'#D85A30','Бэлэн хувцас':'#BA7517','Бусад':'#888780','Цалин':'#1D9E75','Нэмэлт орлого':'#0F6E56','Бизнес':'#185FA5','Хөрөнгө оруулалт':'#534AB7'};
+const CB={'Хүнс':'#E1F5EE','Орон сууц':'#E6F1FB','Тээврийн хэрэгсэл':'#E6F1FB','Ахуйн хэрэглээ':'#EEEDFE','Харилцаа холбоо':'#EEEDFE','Амрал зугаалга':'#FAECE7','Боловсрол':'#FAEEDA','Эрүүл мэнд':'#FBEAF0','Төрийн үйлчилгээ':'#F1EFE8','Үзвэр үйлчилгээ':'#FAECE7','Бэлэн хувцас':'#FAEEDA','Бусад':'#F1EFE8','Цалин':'#E1F5EE','Нэмэлт орлого':'#E1F5EE','Бизнес':'#E6F1FB','Хөрөнгө оруулалт':'#EEEDFE'};
+const CI={'Хүнс':'🛒','Орон сууц':'🏠','Тээврийн хэрэгсэл':'🚗','Ахуйн хэрэглээ':'🧹','Харилцаа холбоо':'📱','Амрал зугаалга':'🎯','Боловсрол':'📚','Эрүүл мэнд':'🏥','Төрийн үйлчилгээ':'🏛','Үзвэр үйлчилгээ':'🎬','Бэлэн хувцас':'👕','Бусад':'📦','Цалин':'💼','Нэмэлт орлого':'💰','Бизнес':'🏢','Хөрөнгө оруулалт':'📈'};
 const GB={'✈':'#E6F1FB','🏠':'#E1F5EE','🚗':'#FAEEDA','💻':'#EEEDFE','📚':'#FAECE7','💰':'#E1F5EE'};
 const NV=['home','txpage','budgetpage','goalspage','addpage'];
 
@@ -449,13 +449,13 @@ let D={
   txf:'all',ty:'expense',nid:7,ext:null,
   txs:[
     {id:1,type:'income',name:'Цалин',amount:2500000,cat:'Цалин',date:'2026-04-01'},
-    {id:2,type:'expense',name:'Хоолны зардал',amount:350000,cat:'Хоол',date:'2026-04-05'},
-    {id:3,type:'expense',name:'Автобус',amount:45000,cat:'Тээвэр',date:'2026-04-07'},
-    {id:4,type:'expense',name:'Netflix',amount:25000,cat:'Цэнгэл',date:'2026-04-10'},
+    {id:2,type:'expense',name:'Хоолны зардал',amount:350000,cat:'Хүнс',date:'2026-04-05'},
+    {id:3,type:'expense',name:'Автобус',amount:45000,cat:'Тээврийн хэрэгсэл',date:'2026-04-07'},
+    {id:4,type:'expense',name:'Netflix',amount:25000,cat:'Амрал зугаалга',date:'2026-04-10'},
     {id:5,type:'income',name:'Нэмэлт орлого',amount:300000,cat:'Бусад',date:'2026-04-15'},
     {id:6,type:'expense',name:'Эмийн зардал',amount:80000,cat:'Эрүүл мэнд',date:'2026-04-18'},
   ],
-  budgets:[{cat:'Хоол',limit:400000},{cat:'Тээвэр',limit:100000},{cat:'Цэнгэл',limit:50000}],
+  budgets:[{cat:'Хүнс',limit:400000},{cat:'Тээврийн хэрэгсэл',limit:100000},{cat:'Амрал зугаалга',limit:50000}],
   goals:[{name:'Зуны аялал',target:1500000,saved:450000,icon:'✈'},{name:'Зөөврийн компьютер',target:2000000,saved:800000,icon:'💻'}]
 };
 
@@ -749,7 +749,7 @@ async function callAI(b64,mt,isImg){
   const today = new Date().toISOString().split('T')[0];
   const prompt=`Энэ баримт/чекнээс мэдээллийг задла. Зөвхөн JSON хариул, өөр текст бүү нэм, \`\`\`json wrapper бүү нэм.
 
-{"name":"дэлгүүр/компанийн нэр (чекний дээд хэсэгт байдаг, жишээ: СУПЕРМАРКЕТ, Номин, Хаан банк)","items":[{"name":"бараа нэр","qty":1,"price":1200,"total":1200}],"amount":16029,"date":"YYYY-MM-DD","type":"expense","cat":"Хоол"}
+{"name":"дэлгүүр/компанийн нэр (чекний дээд хэсэгт байдаг, жишээ: СУПЕРМАРКЕТ, Номин, Хаан банк)","items":[{"name":"бараа нэр","qty":1,"price":1200,"total":1200}],"amount":16029,"date":"YYYY-MM-DD","type":"expense","cat":"Хүнс"}
 
 Дүрэм:
 - name: чекний хамгийн дээд хэсэгт байгаа дэлгүүр/компанийн нэр. Харагдахгүй бол "Дэлгүүр" гэж бич
@@ -757,7 +757,7 @@ async function callAI(b64,mt,isImg){
 - amount: нийт төлбөрийн дүн (зөвхөн тоо)
 - date: баримтын огноо, байхгүй бол "${today}"
 - type: үргэлж "expense"
-- cat: Хоол/Тээвэр/Үйлчилгээ/Цэнгэл/Эрүүл мэнд/Хувцас/Бусад`;
+- cat: Хүнс/Орон сууц/Тээврийн хэрэгсэл/Ахуйн хэрэглээ/Харилцаа холбоо/Амрал зугаалга/Боловсрол/Эрүүл мэнд/Төрийн үйлчилгээ/Үзвэр үйлчилгээ/Бэлэн хувцас/Бусад`;
 
   const msgs=[{role:'user',content:isImg
     ?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]
@@ -823,7 +823,7 @@ function hideModal(){
 function editTx(id){
   const t=D.txs.find(tx=>tx.id===id);
   if(!t) return;
-  const catOpts=['Хоол','Тээвэр','Үйлчилгээ','Цалин','Цэнгэл','Эрүүл мэнд','Хувцас','Бусад']
+  const catOpts=['Хүнс', 'Орон сууц', 'Тээврийн хэрэгсэл', 'Ахуйн хэрэглээ', 'Харилцаа холбоо', 'Амрал зугаалга', 'Боловсрол', 'Эрүүл мэнд', 'Төрийн үйлчилгээ', 'Үзвэр үйлчилгээ', 'Бэлэн хувцас', 'Бусад']
     .map(c=>`<option${c===t.cat?' selected':''}>${c}</option>`).join('');
   showModal(`
     <div style="font-size:18px;font-weight:700;color:var(--txt);margin-bottom:16px">✏️ Гүйлгээ засах</div>
@@ -915,7 +915,7 @@ function loadFromStorage(){
 }
 
 /* ── Items нэг нэгээр нэмэх ── */
-const CATS=['Хоол','Тээвэр','Үйлчилгээ','Цэнгэл','Эрүүл мэнд','Хувцас','Бусад'];
+const CATS=['Хүнс','Орон сууц','Тээврийн хэрэгсэл','Ахуйн хэрэглээ','Харилцаа холбоо','Амрал зугаалга','Боловсрол','Эрүүл мэнд','Төрийн үйлчилгээ','Үзвэр үйлчилгээ','Бэлэн хувцас','Бусад'];
 
 let itemChecked=[];
 let itemCats=[];
@@ -1116,24 +1116,26 @@ async function doEbarimtLogin(ddtd) {
 }
 
 
+function normMn(s){
+  return (s||'').toLowerCase().normalize('NFC');
+}
 function guessCategory(name){
-  const n=(name||'').toLowerCase();
-  // Хоол хүнс
-  if(/талх|сүү|мах|өндөг|тос|гурил|будаа|чихэр|жигнэмэг|ус|уух|идэх|хоол|market|дэлгүүр|супер|зах|nomin|номин|food|drink|bread|milk|meat|rice|нарийн боов|пирог|жүүс|кола|кофе|кафе|ресторан|restaurant|cafe|pizza|бургер|burger|хуурга|шөл|гурилтай/.test(n)) return 'Хоол';
-  // Тээвэр
-  if(/taxi|такси|убер|uber|bus|автобус|тээвэр|fuel|шатахуун|petrol|бензин|дизель|метро|нисэх|онгоц|зорчигч|унаа|машин|зогсоол|parking/.test(n)) return 'Тээвэр';
-  // Эрүүл мэнд
-  if(/эмнэлэг|эм|hospital|pharmacy|дэн|clinic|эмч|үзлэг|дүрс|шинжилгээ|health|витамин|маск|хэмжих/.test(n)) return 'Эрүүл мэнд';
-  // Цэнгэл
-  if(/кино|cinema|тоглоом|game|netflix|spotify|youtube|дэлхийн|concert|спорт|sport|gym|фитнес|fitness|боулинг|кино|theatre/.test(n)) return 'Цэнгэл';
-  // Хувцас
-  if(/хувцас|гутал|clothes|fashion|wear|shirt|pants|jacket|coat|цамц|өмд|пальто|малгай|оймс|бээлий|дэгэл/.test(n)) return 'Хувцас';
-  // Үйлчилгээ
-  if(/утас|internet|цахилгаан|electric|дулаан|ус|phone|wifi|tv|телевиз|мэйл|дата|хаус|байр|түрээс|rent|засвар|угаалга|үсчин|golomt|хаан|tdb|monpay|lendmn/.test(n)) return 'Үйлчилгээ';
+  const n=normMn(name);
+  if(/талх|сүү|мах|өндөг|тос|гурил|будаа|чихэр|хүнс|хоол|идэх|уух|market|дэлгүүр|супер|зах|nomin|номин|food|drink|bread|milk|meat|rice|пирог|жүүс|кола|кофе|кафе|ресторан|restaurant|cafe|pizza|бургер|burger|хуурга|шөл/.test(n)) return 'Хүнс';
+  if(/taxi|такси|убер|uber|bus|автобус|тээвэр|fuel|шатахуун|petrol|бензин|дизель|метро|нисэх|онгоц|машин|зогсоол|parking/.test(n)) return 'Тээврийн хэрэгсэл';
+  if(/эмнэлэг|эмч|hospital|pharmacy|clinic|үзлэг|дүрс|шинжилгээ|health|витамин|маск|рашаан|эрүүл/.test(n)) return 'Эрүүл мэнд';
+  if(/кино|cinema|тоглоом|game|netflix|spotify|concert|спорт|sport|gym|фитнес|fitness|боулинг|theatre|амрал|зугаалга|аялал|hotel/.test(n)) return 'Амрал зугаалга';
+  if(/хувцас|гутал|clothes|fashion|wear|shirt|pants|jacket|coat|цамц|өмд|пальто|малгай|оймс|бээлий|дэгэл|бэлэн/.test(n)) return 'Бэлэн хувцас';
+  if(/утас|internet|wifi|phone|мобикон|mobicom|skytel|unitel|gmobile|сүлжээ|дата|интернет/.test(n)) return 'Харилцаа холбоо';
+  if(/түрээс|rent|байр|орон сууц|нийтийн|халаалт|цахилгаан|electric|дулаан/.test(n)) return 'Орон сууц';
+  if(/угаалга|цэвэрлэгч|шампунь|саван|ахуй|тавилга|засвар|hardware/.test(n)) return 'Ахуйн хэрэглээ';
+  if(/сургууль|university|school|боловсрол|ном|course|сургалт|хичээл/.test(n)) return 'Боловсрол';
+  if(/үсчин|гоо|beauty|salon|spa|масаж|massage/.test(n)) return 'Үзвэр үйлчилгээ';
+  if(/татвар|даатгал|insurance|нийгмийн|торгууль|fine|visa|passport/.test(n)) return 'Төрийн үйлчилгээ';
   return 'Бусад';
 }
 
-/* ── QR Scanner — iOS Safari compatible ── */
+/* ── QR Scanner/* ── QR Scanner — iOS Safari compatible ── */
 let qrStream=null,qrTimer=null;
 
 function initCamBtn(){
