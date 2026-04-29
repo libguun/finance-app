@@ -276,33 +276,90 @@ input:focus,select:focus{border-color:var(--accent)}
   <div class="addw">
     <div class="addtl">Гүйлгээ нэмэх</div>
 
-    <!-- SCAN -->
-    <div class="scan-zone" id="scan-zone"
-      ondragover="ev.preventDefault();this.classList.add('drag')"
-      ondragleave="this.classList.remove('drag')"
-      ondrop="this.classList.remove('drag');onDrop(event)">
-      <input class="scan-file" type="file" id="file-in" accept="image/*,application/pdf" onchange="onFileSelect(event)">
-      <span class="scan-ico">📄</span>
-      <div class="scan-ttl">Баримт скан хийх</div>
-      <div class="scan-sub">Зураг эсвэл PDF дарж оруулна уу<br>AI автоматаар мэдээлэл задлана</div>
+    <!-- SCAN OPTIONS -->
+    <div id="scan-zone">
+      <!-- AI баримт скан -->
+      <div id="drop-zone" style="border:2px dashed var(--border2);border-radius:18px;padding:32px 20px;text-align:center;margin-bottom:16px;background:var(--surface2);position:relative;transition:all 0.2s"
+        ondragover="event.preventDefault();this.style.borderColor='var(--accent)';this.style.background='var(--accent-bg)'"
+        ondragleave="this.style.borderColor='';this.style.background='var(--surface2)'"
+        ondrop="this.style.borderColor='';this.style.background='var(--surface2)';onDrop(event)">
+        <input class="scan-file" type="file" id="file-in" accept="image/*" onchange="onFileSelect(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+        <div style="font-size:48px;margin-bottom:12px">🧾</div>
+        <div style="font-size:17px;font-weight:700;color:var(--txt);margin-bottom:6px">Баримтын зураг оруулах</div>
+        <div style="font-size:13px;color:var(--txt3);line-height:1.5">Чек, нэхэмжлэл, баримтын зургийг<br>дарж сонгох эсвэл чирж тавина уу</div>
+        <div style="margin-top:16px;display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent);color:#fff;border-radius:12px;font-size:14px;font-weight:700;pointer-events:none">
+          <span>📁</span> Зураг сонгох
+        </div>
+      </div>
+      <!-- Жишээ зааврууд -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:22px;margin-bottom:4px">🏪</div>
+          <div style="font-size:11px;color:var(--txt3)">Дэлгүүрийн чек</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:22px;margin-bottom:4px">📋</div>
+          <div style="font-size:11px;color:var(--txt3)">Нэхэмжлэл</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:22px;margin-bottom:4px">🏦</div>
+          <div style="font-size:11px;color:var(--txt3)">Банкны хуулга</div>
+        </div>
+      </div>
     </div>
 
     <div id="scan-result" style="display:none">
-      <img id="prev-img" class="prev-img" style="display:none">
-      <div class="ai-bar">
+      <!-- Зургийн preview -->
+      <div id="prev-wrap" style="position:relative;margin-bottom:14px;display:none">
+        <img id="prev-img" style="width:100%;max-height:220px;object-fit:contain;border-radius:16px;border:1px solid var(--border);background:var(--surface2)">
+        <div style="position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px">AI задалж байна</div>
+      </div>
+      <!-- Status -->
+      <div class="ai-bar" id="ai-bar">
         <div class="ai-dot scan" id="ai-dot"></div>
         <div class="ai-txt" id="ai-txt">AI задлан шинжилж байна...</div>
       </div>
+      <!-- Олдсон мэдээлэл -->
       <div class="ex-card" id="ex-card" style="display:none">
-        <div class="ex-ttl">✓ Олдсон мэдээлэл</div>
-        <div class="ex-row"><span class="ex-l">Нэр</span><span class="ex-v" id="ex-nm">—</span></div>
-        <div class="ex-row"><span class="ex-l">Дүн</span><span class="ex-v" id="ex-am">—</span></div>
-        <div class="ex-row"><span class="ex-l">Огноо</span><span class="ex-v" id="ex-dt">—</span></div>
-        <div class="ex-row"><span class="ex-l">Ангилал</span><span class="ex-v" id="ex-ct">—</span></div>
-        <div class="ex-row"><span class="ex-l">Төрөл</span><span class="ex-v" id="ex-ty">—</span></div>
+        <div class="ex-ttl">✓ AI олсон мэдээлэл</div>
+        <div class="ex-row"><span class="ex-l">🏪 Нэр</span><span class="ex-v" id="ex-nm">—</span></div>
+        <div class="ex-row"><span class="ex-l">💰 Дүн</span><span class="ex-v" id="ex-am" style="color:var(--red)">—</span></div>
+        <div class="ex-row"><span class="ex-l">📅 Огноо</span><span class="ex-v" id="ex-dt">—</span></div>
+        <div class="ex-row"><span class="ex-l">🏷 Ангилал</span><span class="ex-v" id="ex-ct">—</span></div>
+        <div class="ex-row"><span class="ex-l">📊 Төрөл</span><span class="ex-v" id="ex-ty">—</span></div>
       </div>
-      <button class="sbtn" id="conf-btn" style="display:none" onclick="confirmScan()">✓ Бүртгэх</button>
-      <button class="cancel-btn" onclick="resetScan()">Цуцлах</button>
+      <!-- Мэдээлэл засах боломж -->
+      <div id="edit-extracted" style="display:none;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Засах боломжтой</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div>
+            <label style="font-size:11px;color:var(--txt3);display:block;margin-bottom:4px">Нэр</label>
+            <input type="text" id="edit-nm" style="font-size:13px;padding:9px 11px">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--txt3);display:block;margin-bottom:4px">Дүн (₮)</label>
+            <input type="number" id="edit-am" style="font-size:13px;padding:9px 11px">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div>
+            <label style="font-size:11px;color:var(--txt3);display:block;margin-bottom:4px">Огноо</label>
+            <input type="date" id="edit-dt" style="font-size:13px;padding:9px 11px">
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--txt3);display:block;margin-bottom:4px">Ангилал</label>
+            <select id="edit-ct" style="font-size:13px;padding:9px 11px">
+              <option>Хоол</option><option>Тээвэр</option><option>Үйлчилгээ</option>
+              <option>Цэнгэл</option><option>Эрүүл мэнд</option><option>Хувцас</option><option>Бусад</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="sbtn" id="conf-btn" style="display:none;flex:1" onclick="confirmScan()">✓ Бүртгэх</button>
+        <button id="edit-btn" style="display:none;padding:14px;border:1.5px solid var(--border2);border-radius:14px;background:transparent;color:var(--txt2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit" onclick="toggleEdit()">✏️</button>
+      </div>
+      <button class="cancel-btn" onclick="resetScan()">← Буцах</button>
     </div>
 
     <div class="or-div">эсвэл гараар оруулах</div>
@@ -391,7 +448,7 @@ function goPg(p){
   document.getElementById('n-'+p).classList.add('on');
   renderAll();
 }
-function renderAll(){rHead();rHome();rTx();rBud();rGoals()}
+function renderAll(){rHead();rHome();rTx();rBud();rGoals();setTimeout(initCamBtn,50)}
 
 function rHead(){
   const inc=D.txs.filter(t=>t.type==='income').reduce((a,t)=>a+t.amount,0);
@@ -489,17 +546,16 @@ function addGoal(){
 function onDrop(e){e.preventDefault();const f=e.dataTransfer.files[0];if(f)processFile(f)}
 function onFileSelect(e){const f=e.target.files[0];if(f)processFile(f)}
 
-// Зургийг жижигрүүлэх (Worker-н хязгаарт багтаахын тулд)
-async function compressImage(dataUrl, maxWidth=1024, quality=0.75){
+async function compressImage(dataUrl,maxWidth=1200,quality=0.85){
   return new Promise(resolve=>{
     const img=new Image();
     img.onload=()=>{
       const canvas=document.createElement('canvas');
-      let w=img.width, h=img.height;
-      if(w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth;}
-      canvas.width=w; canvas.height=h;
+      let w=img.width,h=img.height;
+      if(w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth}
+      canvas.width=w;canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
-      resolve(canvas.toDataURL('image/jpeg', quality));
+      resolve(canvas.toDataURL('image/jpeg',quality));
     };
     img.src=dataUrl;
   });
@@ -510,18 +566,115 @@ function processFile(file){
   r.onload=async e=>{
     let url=e.target.result;
     const isImg=file.type.startsWith('image/');
+    // UI шилжүүлэх
     document.getElementById('scan-zone').style.display='none';
     document.getElementById('scan-result').style.display='block';
-    const pi=document.getElementById('prev-img');
-    if(isImg){pi.src=url;pi.style.display='block'}else pi.style.display='none';
-    setAI('scan','AI задлан шинжилж байна...');
     document.getElementById('ex-card').style.display='none';
+    document.getElementById('edit-extracted').style.display='none';
     document.getElementById('conf-btn').style.display='none';
+    document.getElementById('edit-btn').style.display='none';
+    // Preview харуулах
+    const prevWrap=document.getElementById('prev-wrap');
+    const prevImg=document.getElementById('prev-img');
+    if(isImg){
+      prevImg.src=url;
+      prevWrap.style.display='block';
+    } else {
+      prevWrap.style.display='none';
+    }
+    setAI('scan','🧠 AI баримтыг уншиж байна...');
     try{
-      // Зураг бол жижигрүүлнэ
       if(isImg) url=await compressImage(url);
       const b64=url.split(',')[1];
       const res=await callAI(b64,'image/jpeg',isImg);
+      D.ext=res;
+      // Үр дүн харуулах
+      document.getElementById('ex-nm').textContent=res.name||'—';
+      document.getElementById('ex-am').textContent=res.amount?fmt(res.amount):'—';
+      document.getElementById('ex-dt').textContent=res.date||'—';
+      document.getElementById('ex-ct').textContent=res.cat||'Бусад';
+      document.getElementById('ex-ty').textContent=res.type==='income'?'Орлого ↑':'Зарлага ↓';
+      document.getElementById('ex-card').style.display='block';
+      document.getElementById('conf-btn').style.display='block';
+      document.getElementById('edit-btn').style.display='block';
+      // Edit талбаруудад дүүргэх
+      document.getElementById('edit-nm').value=res.name||'';
+      document.getElementById('edit-am').value=res.amount||'';
+      document.getElementById('edit-dt').value=res.date||new Date().toISOString().split('T')[0];
+      const cs=document.getElementById('edit-ct');
+      for(let i=0;i<cs.options.length;i++)if(cs.options[i].value===res.cat){cs.selectedIndex=i;break}
+      // Гараар бөглөх талбаруудад ч дүүргэх
+      document.getElementById('f-nm').value=res.name||'';
+      document.getElementById('f-am').value=res.amount||'';
+      if(res.date)document.getElementById('f-dt').value=res.date;
+      selT(res.type||'expense');
+      setAI('ok','✅ Амжилттай уншлаа! Шалгаад бүртгэнэ үү.');
+      // Preview дээрх badge арилгах
+      const badge=document.querySelector('#prev-wrap div');
+      if(badge)badge.style.display='none';
+    }catch(err){
+      setAI('err','❌ Уншихад алдаа гарлаа. Зургаа илүү тод дарж оруулна уу.');
+    }
+  };
+  r.readAsDataURL(file);
+}
+
+function toggleEdit(){
+  const el=document.getElementById('edit-extracted');
+  const btn=document.getElementById('edit-btn');
+  if(el.style.display==='none'){
+    el.style.display='block';btn.textContent='✅';
+  } else {
+    // Засварыг хадгалах
+    if(D.ext){
+      D.ext.name=document.getElementById('edit-nm').value||D.ext.name;
+      D.ext.amount=parseFloat(document.getElementById('edit-am').value)||D.ext.amount;
+      D.ext.date=document.getElementById('edit-dt').value||D.ext.date;
+      D.ext.cat=document.getElementById('edit-ct').value||D.ext.cat;
+      document.getElementById('ex-nm').textContent=D.ext.name;
+      document.getElementById('ex-am').textContent=fmt(D.ext.amount);
+      document.getElementById('ex-dt').textContent=D.ext.date;
+      document.getElementById('ex-ct').textContent=D.ext.cat;
+    }
+    el.style.display='none';btn.textContent='✏️';
+  }
+}
+
+async function callAI(b64,mt,isImg){
+  const prompt=`Та энэ баримт/чекнээс санхүүгийн мэдээллийг задлаарай.
+
+Зөвхөн дараах JSON форматаар хариулна уу (өөр текст нэмэхгүй):
+{
+  "name": "дэлгүүр эсвэл компанийн нэр (монголоор)",
+  "amount": 12345,
+  "date": "YYYY-MM-DD",
+  "type": "expense",
+  "cat": "Хоол"
+}
+
+Ангилал сонгох (яг нэг сонгоно): Хоол, Тээвэр, Үйлчилгээ, Цэнгэл, Эрүүл мэнд, Хувцас, Бусад
+Нийт төлбөрийн дүнг (amount) тоо болгон бич — ₮ тэмдэг бүү нэм.
+Огноо байхгүй бол өнөөдрийн огноог бич.
+Мэдээлэл тодорхойгүй бол таамаглаж бич.`;
+
+  const msgs=[{role:'user',content:isImg
+    ?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]
+    :[{type:'text',text:prompt}]
+  }];
+
+  const res=await fetch('https://tight-wood-dfd1finance-scan.devbilguun.workers.dev/scan',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:msgs,model:'claude-sonnet-4-20250514',max_tokens:300})
+  });
+  if(!res.ok) throw new Error('API error '+res.status);
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message||'API error');
+  const txt=data.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+  const p=JSON.parse(txt);
+  if(!p.amount&&p.amount!==0) throw new Error('no amount');
+  return p;
+}
       D.ext=res;
       document.getElementById('ex-nm').textContent=res.name||'—';
       document.getElementById('ex-am').textContent=res.amount?fmt(res.amount):'—';
@@ -549,34 +702,277 @@ function setAI(state,msg){
   document.getElementById('ai-txt').textContent=msg;
 }
 
-async function callAI(b64,mt,isImg){
-  const prompt=`Энэ баримт/зурагнаас санхүүгийн гүйлгээний мэдээллийг задла. Зөвхөн JSON хариул (өөр текст бүү нэм):
-{"name":"дэлгүүр эсвэл үйлчилгээний нэр","amount":12345,"date":"YYYY-MM-DD","type":"expense эсвэл income","cat":"Хоол эсвэл Тээвэр эсвэл Үйлчилгээ эсвэл Цэнгэл эсвэл Эрүүл мэнд эсвэл Хувцас эсвэл Бусад"}
-Дүнг тоо болгон бич. Мэдээлэл байхгүй бол null.`;
-  const msgs=[{role:'user',content:isImg?[{type:'image',source:{type:'base64',media_type:mt,data:b64}},{type:'text',text:prompt}]:[{type:'text',text:prompt}]}];
-  // Cloudflare Worker proxy-р дамжуулна (API key нуугдана)
-  const res=await fetch('https://tight-wood-dfd1finance-scan.devbilguun.workers.dev',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({messages:msgs})
-  });
-  if(!res.ok) throw new Error('worker error');
-  const data=await res.json();
-  const txt=data.content.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
-  const p=JSON.parse(txt);
-  if(!p.amount&&p.amount!==0)throw new Error('no amount');
-  return p;
-}
-
 function confirmScan(){
   if(!D.ext)return;
+  // Edit хийсэн бол шинэчлэх
+  if(document.getElementById('edit-extracted').style.display!=='none'){
+    D.ext.name=document.getElementById('edit-nm').value||D.ext.name;
+    D.ext.amount=parseFloat(document.getElementById('edit-am').value)||D.ext.amount;
+    D.ext.date=document.getElementById('edit-dt').value||D.ext.date;
+    D.ext.cat=document.getElementById('edit-ct').value||D.ext.cat;
+  }
   D.txs.push({id:D.nid++,type:D.ext.type||'expense',name:D.ext.name||'Баримт',amount:D.ext.amount||0,cat:D.ext.cat||'Бусад',date:D.ext.date||new Date().toISOString().split('T')[0]});
   resetScan();goPg('home');
 }
 function resetScan(){
+  stopQR();
   document.getElementById('scan-result').style.display='none';
   document.getElementById('scan-zone').style.display='block';
-  document.getElementById('file-in').value='';D.ext=null;
+  document.getElementById('qr-zone').style.display='none';
+  document.getElementById('file-in').value='';
+  document.getElementById('ddtd-input').value='';
+  D.ext=null;
+}
+
+/* ── eBarimt API ── */
+let ebarimtToken = null;
+
+// ebarimt.mn-д нэвтэрч token авна
+async function ebarimtLogin(username, password) {
+  const endpoints = [
+    'https://ebarimt.mn/api/auth/login',
+    'https://api.ebarimt.mn/api/auth/login',
+    'https://ebarimt.mn/api/user/login',
+  ];
+  for (const ep of endpoints) {
+    try {
+      const r = await fetch(ep, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const d = await r.json();
+      if (d.token || d.accessToken || d.access_token) {
+        return d.token || d.accessToken || d.access_token;
+      }
+    } catch {}
+  }
+  throw new Error('Нэвтрэх амжилтгүй');
+}
+
+// Token-р ДДТД унших
+async function ebarimtGetReceipt(ddtd, token) {
+  const endpoints = [
+    `https://ebarimt.mn/api/receipt/${ddtd}`,
+    `https://api.ebarimt.mn/api/receipt/get?id=${ddtd}`,
+    `https://ebarimt.mn/api/receipts/${ddtd}`,
+    `https://api.ebarimt.mn/api/info/check/getInfo?id=${ddtd}`,
+  ];
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+  };
+  for (const ep of endpoints) {
+    try {
+      const r = await fetch(ep, { headers });
+      const text = await r.text();
+      try {
+        const d = JSON.parse(text);
+        if (r.ok && (d.totalAmount || d.amount || d.merchantName || d.data)) {
+          return d.data || d;
+        }
+      } catch {}
+    } catch {}
+  }
+  throw new Error('Баримт олдсонгүй');
+}
+
+function fetchByDDTD() {
+  const ddtd = document.getElementById('ddtd-input').value.trim();
+  if (!ddtd) { alert('ДДТД дугаараа оруулна уу'); return }
+  processEbarimtId(ddtd);
+}
+
+async function processEbarimtId(ddtd) {
+  document.getElementById('scan-zone').style.display = 'none';
+  document.getElementById('qr-zone').style.display = 'none';
+  document.getElementById('scan-result').style.display = 'block';
+  document.getElementById('prev-img').style.display = 'none';
+  document.getElementById('ex-card').style.display = 'none';
+  document.getElementById('conf-btn').style.display = 'none';
+
+  try {
+    // Token байхгүй бол нэвтрэлт асуух
+    if (!ebarimtToken) {
+      setAI('scan', 'eBarimt нэвтрэлт шаардлагатай...');
+      await askEbarimtLogin(ddtd);
+      return;
+    }
+    await doFetchReceipt(ddtd);
+  } catch (e) {
+    setAI('err', 'Алдаа: ' + e.message);
+  }
+}
+
+async function doFetchReceipt(ddtd) {
+  setAI('scan', 'eBarimt мэдээлэл татаж байна...');
+  try {
+    const d = await ebarimtGetReceipt(ddtd, ebarimtToken);
+    const name = d.merchantName || d.companyName || d.organizationName || d.merchantTin || 'Дэлгүүр';
+    const amount = parseFloat(d.totalAmount || d.amount || d.netAmount || 0);
+    const rawDate = d.date || d.createdDate || d.receiptDate || '';
+    const date = rawDate ? rawDate.split('T')[0] : new Date().toISOString().split('T')[0];
+    D.ext = { name, amount, date, type: 'expense', cat: guessCategory(name) };
+    document.getElementById('ex-nm').textContent = name;
+    document.getElementById('ex-am').textContent = fmt(amount);
+    document.getElementById('ex-dt').textContent = date;
+    document.getElementById('ex-ct').textContent = D.ext.cat;
+    document.getElementById('ex-ty').textContent = 'Зарлага';
+    document.getElementById('ex-card').style.display = 'block';
+    document.getElementById('conf-btn').style.display = 'block';
+    setAI('ok', 'eBarimt мэдээлэл амжилттай олдлоо!');
+    document.getElementById('f-nm').value = name;
+    document.getElementById('f-am').value = amount || '';
+    document.getElementById('f-dt').value = date;
+    selT('expense');
+  } catch {
+    setAI('err', 'Баримт олдсонгүй. ДДТД шалгаад дахин оролдоно уу.');
+  }
+}
+
+// Нэвтрэлтийн modal
+function askEbarimtLogin(ddtd) {
+  // Modal үүсгэнэ
+  const existing = document.getElementById('eb-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'eb-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:20px;padding:24px;width:100%;max-width:360px;border:1px solid var(--border)">
+      <div style="font-size:18px;font-weight:700;color:var(--txt);margin-bottom:6px">🔐 eBarimt нэвтрэх</div>
+      <div style="font-size:13px;color:var(--txt3);margin-bottom:18px">ebarimt.mn хэрэглэгчийн нэр, нууц үгээ оруулна уу</div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Хэрэглэгчийн нэр</label>
+        <input id="eb-user" type="text" placeholder="11809813" style="width:100%;padding:12px 14px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none">
+      </div>
+      <div style="margin-bottom:18px">
+        <label style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:5px">Нууц үг</label>
+        <input id="eb-pass" type="password" placeholder="••••••••" style="width:100%;padding:12px 14px;border:1.5px solid var(--border2);border-radius:12px;background:var(--surface);color:var(--txt);font-size:15px;font-family:inherit;outline:none">
+      </div>
+      <div id="eb-err" style="color:var(--red);font-size:13px;margin-bottom:10px;display:none"></div>
+      <button onclick="doEbarimtLogin('${ddtd}')" style="width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px">Нэвтрэх</button>
+      <button onclick="document.getElementById('eb-modal').remove();resetScan()" style="width:100%;padding:12px;background:transparent;color:var(--txt2);border:1.5px solid var(--border2);border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Болих</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  setTimeout(() => document.getElementById('eb-user').focus(), 100);
+}
+
+async function doEbarimtLogin(ddtd) {
+  const user = document.getElementById('eb-user').value.trim();
+  const pass = document.getElementById('eb-pass').value;
+  const errEl = document.getElementById('eb-err');
+  if (!user || !pass) { errEl.textContent = 'Нэр, нууц үгээ оруулна уу'; errEl.style.display = 'block'; return; }
+  const btn = document.querySelector('#eb-modal button');
+  btn.textContent = 'Нэвтэрч байна...'; btn.disabled = true;
+  try {
+    ebarimtToken = await ebarimtLogin(user, pass);
+    document.getElementById('eb-modal').remove();
+    await doFetchReceipt(ddtd);
+  } catch (e) {
+    btn.textContent = 'Нэвтрэх'; btn.disabled = false;
+    errEl.textContent = 'Нэвтрэх амжилтгүй: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+
+function guessCategory(name){
+  const n=(name||'').toLowerCase();
+  if(/market|дэлгүүр|food|хоол|супер|зах|nomin|номин/.test(n)) return 'Хоол';
+  if(/taxi|убер|uber|bus|автобус|тээвэр|fuel|шатахуун|petrol/.test(n)) return 'Тээвэр';
+  if(/эмнэлэг|hospital|pharmacy|эм|health/.test(n)) return 'Эрүүл мэнд';
+  if(/кино|cinema|coffee|кафе|ресторан|restaurant/.test(n)) return 'Цэнгэл';
+  if(/хувцас|clothes|fashion/.test(n)) return 'Хувцас';
+  if(/утас|internet|цахилгаан|electric|дулаан|ус/.test(n)) return 'Үйлчилгээ';
+  return 'Бусад';
+}
+
+/* ── QR Scanner ── */
+let qrStream=null,qrTimer=null,qrDetector=null;
+
+/* ── QR Scanner — iOS Safari compatible ── */
+let qrStream=null,qrTimer=null;
+
+function initCamBtn(){
+  const btn=document.getElementById('cam-btn');
+  if(!btn)return;
+  btn.addEventListener('click',function(){
+    btn.disabled=true;
+    btn.textContent='Нээж байна...';
+    document.getElementById('cam-err').style.display='none';
+    // jsQR ачаалж камер нээнэ
+    loadJsQR().then(function(){
+      return navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}});
+    }).then(function(stream){
+      qrStream=stream;
+      document.getElementById('qr-btn-wrap').style.display='none';
+      document.getElementById('qr-zone').style.display='block';
+      const video=document.getElementById('qr-video');
+      video.srcObject=stream;
+      return video.play();
+    }).then(function(){
+      const video=document.getElementById('qr-video');
+      qrTimer=setInterval(function(){scanFrameJsQR(video)},300);
+    }).catch(function(err){
+      btn.disabled=false;
+      btn.textContent='📷 Камер нээх';
+      const errEl=document.getElementById('cam-err');
+      if(err.name==='NotAllowedError'||err.name==='PermissionDeniedError'){
+        errEl.innerHTML='⚠️ Зөвшөөрөл хаасан байна<br><b>iPhone:</b> Тохиргоо → Safari → Камер → Зөвшөөрөх<br>Дараа дахин дарна уу.';
+      } else {
+        errEl.textContent='Алдаа: '+(err.message||err.name);
+      }
+      errEl.style.display='block';
+    });
+  });
+}
+
+function loadJsQR(){
+  if(window.jsQR)return Promise.resolve();
+  return new Promise(function(res,rej){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
+    s.onload=res; s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+
+function scanFrameJsQR(video){
+  if(!video||video.readyState<2)return;
+  const canvas=document.getElementById('qr-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
+  ctx.drawImage(video,0,0);
+  const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const code=window.jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+  if(code){stopQR();handleQRText(code.data)}
+}
+
+function stopQR(){
+  if(qrStream){qrStream.getTracks().forEach(function(t){t.stop()});qrStream=null}
+  if(qrTimer){clearInterval(qrTimer);qrTimer=null}
+  document.getElementById('qr-zone').style.display='none';
+  document.getElementById('qr-btn-wrap').style.display='block';
+  const btn=document.getElementById('cam-btn');
+  if(btn){btn.disabled=false;btn.textContent='📷 Камер нээх'}
+}
+
+function handleQRText(text){
+  const ddtdMatch=text.match(/\d{33}/);
+  const urlMatch=text.match(/[?&]id=([^&\s]+)/);
+  const ddtd=ddtdMatch?ddtdMatch[0]:(urlMatch?decodeURIComponent(urlMatch[1]):null);
+  if(ddtd){
+    document.getElementById('ddtd-input').value=ddtd;
+    processEbarimtId(ddtd);
+  }else{
+    document.getElementById('scan-zone').style.display='block';
+    alert('eBarimt QR код биш байна');
+  }
 }
 
 /* PWA */
@@ -590,6 +986,8 @@ if('serviceWorker' in navigator){
 
 document.getElementById('f-dt').valueAsDate=new Date();
 renderAll();
+// Камерын товч listener
+setTimeout(initCamBtn, 100);
 </script>
 </body>
 </html>
